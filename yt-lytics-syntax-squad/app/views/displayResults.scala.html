@@ -1,0 +1,14 @@
+@(title: String)(searchResultsList: List[SearchResults])(content: Html)
+@main(title){
+    @content
+    @for(search <- searchResultsList) {
+        <br><br>
+        <strong>Search terms:</strong> @search.getSearchTerms() <br>
+        @for((video, index) <- search.getYouTubeVideosList().zipWithIndex){
+            @(index+1). <strong>Title: </strong> @video.getTitle(),
+            <strong>Channel: </strong> @video.getChannel(),
+            <strong>Description: </strong> @video.getDescription() <br>
+            <br>
+        }
+    }
+}

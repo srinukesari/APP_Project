@@ -1,0 +1,14 @@
+@(searchForm : Form[Search])(searchResultsList: List[SearchResults])(implicit messages: play.i18n.Messages)
+@import helper._
+
+@displayResults("YT Lytics")(searchResultsList){
+    <h1>Welcome to YT Lytics</h1>
+    @helper.form(action = routes.SearchController.search()){
+        @helper.inputText(
+            searchForm("key"),
+            '_label -> "Search",
+            '_placeholder -> "Enter search terms"
+        )
+        <input type="submit" value="Go!"/>
+    }
+}

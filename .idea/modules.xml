@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/yt-lytics-syntax-squad/.g8/.g8.iml" filepath="$PROJECT_DIR$/yt-lytics-syntax-squad/.g8/.g8.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/APP_Project.iml" filepath="$PROJECT_DIR$/.idea/APP_Project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/yt-lytics-syntax-squad/target/target.iml" filepath="$PROJECT_DIR$/yt-lytics-syntax-squad/target/target.iml" />
+      <module fileurl="file://$PROJECT_DIR$/yt-lytics-syntax-squad/yt-lytics-syntax-squad.iml" filepath="$PROJECT_DIR$/yt-lytics-syntax-squad/yt-lytics-syntax-squad.iml" />
+    </modules>
+  </component>
+</project>
