@@ -35,12 +35,12 @@ public class SearchController  extends Controller{
         if(searchForm.hasErrors()){
             return badRequest();
         }
-        Search data = searchForm.get();  // Access the form data
+        Search data = searchForm.get();
         String searchKey = data.getKey();
         if(searchKey != null && !searchKey.isEmpty()) {
             List<YouTubeVideo> YTVideosList = new ArrayList<>();
             try {
-                YTVideosList = YouTubeSearch.Search(searchKey);
+                YTVideosList = YouTubeSearch.Search(searchKey,"home");
             } catch (Exception e) {
                 System.out.println("check exception==== " + e);
             }
@@ -51,5 +51,20 @@ public class SearchController  extends Controller{
         }
 
         return ok(search.render(searchForm,displayResults,messages));
+    }
+
+    public Result profile(Http.Request request){
+        String channelName = request.getQueryString("channel");
+        if (channelName == null) {
+            return badRequest("ChannelName not provided");
+        }
+        List<YouTubeVideo> YTVideosList = new ArrayList<>();
+        try {
+            YTVideosList = YouTubeSearch.Search(channelName,"profile");
+        } catch (Exception e) {
+            System.out.println("check exception==== " + e);
+        }
+
+        return ok(profile.render(channelName,YTVideosList));
     }
 }
