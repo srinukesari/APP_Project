@@ -6,8 +6,8 @@
     @helper.form(action = routes.SearchController.search()){
         @helper.inputText(
             searchForm("key"),
-            '_label -> "Search",
-            '_placeholder -> "Enter search terms"
+            '_label -> "",
+            'placeholder -> "Enter search terms"
         )
         <input type="submit" value="Go!"/>
     }

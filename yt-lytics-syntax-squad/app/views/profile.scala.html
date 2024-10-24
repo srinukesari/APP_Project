@@ -1,3 +1,11 @@
-@main("Play Profile") {
-<h1>profile is here </h1>
+@(channelName : String)(searchResultsList: List[YouTubeVideo])
+
+@main("Profile") {
+<h1> channel name is @channelName</h1>
+    @for((video,index) <- searchResultsList.zipWithIndex) {
+        <br>
+        @(index+1). <strong>Title: </strong> @video.getTitle(),
+        <strong>Channel: </strong> @video.getChannel(),
+        <strong>Description: </strong> @video.getDescription() <br>
+    }
 }

@@ -10,3 +10,5 @@
 Add Search controller and YouTube Api and theirs results.
 Take a pull and test it in your local system
     
+Added profile page redirection and profile page implementation 
+take a pull and test it in your local system
