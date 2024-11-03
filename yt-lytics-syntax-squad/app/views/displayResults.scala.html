@@ -1,14 +1,25 @@
 @(title: String)(searchResultsList: List[SearchResults])(content: Html)
 @main(title){
     @content
+    <div class="search-results">
     @for(search <- searchResultsList) {
         <br><br>
-        <strong>Search terms:</strong> @search.getSearchTerms() <br>
+        <div class="search-terms">Search terms: @search.getSearchTerms()
+            <a href="@routes.MoreStatsController.displayStats(search.getSearchTerms())">MoreStats</a>
+        </div>
         @for((video, index) <- search.getYouTubeVideosList().zipWithIndex){
+            <div class="video-item">
+                <div class="video-details">
             @(index+1). <strong>Title: </strong> @video.getTitle(),
             <strong>Channel: </strong> @video.getHtmlLinkforProfile(),
             <strong>Description: </strong> @video.getDescription() <br>
-            <br>
+        </div>
+            <div class="video-thumbnail">
+                <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
+            </div>
+
+    </div>
         }
     }
+</div>
 }

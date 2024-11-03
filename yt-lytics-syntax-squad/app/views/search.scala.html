@@ -2,13 +2,18 @@
 @import helper._
 
 @displayResults("YT Lytics")(searchResultsList){
-    <h1>Welcome to YT Lytics</h1>
+    <h2>Welcome to YT Lytics</h2>
+    <div class="search-container">
+        
     @helper.form(action = routes.SearchController.search()){
         @helper.inputText(
             searchForm("key"),
             '_label -> "",
-            'placeholder -> "Enter search terms"
+            'placeholder -> "Enter search terms",
+            'class -> "search-input"
         )
-        <input type="submit" value="Go!"/>
+        
+        <input type="submit" value="Go!" class="search-button"/>
     }
+</div>
 }
