@@ -7,11 +7,14 @@ public class YouTubeVideo{
     private String title;
     private String description;
     private String channel;
+    private String thumbnailUrl;
 
-    public YouTubeVideo(String title, String channel, String description){
+    public YouTubeVideo(String title, String channel, String description,String thumbnailUrl){
         this.title = title;
         this.channel = channel;
         this.description = description;
+        this.thumbnailUrl = thumbnailUrl;
+        
     }
 
     public String getTitle() {
@@ -24,6 +27,10 @@ public class YouTubeVideo{
 
     public String getDescription() {
         return description;
+    }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;  
     }
 
     public Html getHtmlLinkforProfile(){

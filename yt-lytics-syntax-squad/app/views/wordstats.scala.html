@@ -1,0 +1,20 @@
+@(wordStats: Map[String, Long])
+@main("Word Statistics") {
+    <h1>Word Statistics</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Word</th>
+                <th>Frequency</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for((word, count) <- wordStats) {
+                <tr>
+                    <td>@word</td>
+                    <td>@count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

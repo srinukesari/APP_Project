@@ -79,9 +79,12 @@ public class YouTubeSearch {
         List<SearchResult> searchResults = response.getItems();
 
         for (SearchResult result : searchResults) {
+            String thumbnailUrl = result.getSnippet().getThumbnails().getDefault().getUrl();
             videosList.add(new YouTubeVideo(result.getSnippet().getTitle(),
-                    result.getSnippet().getChannelTitle(),
-                    result.getSnippet().getDescription()));
+                result.getSnippet().getChannelTitle(),
+                result.getSnippet().getDescription(),
+                thumbnailUrl));  
+                    
         }
 
         return videosList;
