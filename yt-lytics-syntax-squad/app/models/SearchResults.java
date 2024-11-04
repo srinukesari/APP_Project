@@ -1,7 +1,7 @@
 package models;
-import java.util.List;
-import java.util.OptionalDouble;
-
+import java.util.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class SearchResults {
     private String searchTerms;
@@ -31,16 +31,27 @@ public class SearchResults {
     }
 
     private void calculateAverageScores() {
-        // Using Streams to calculate the averages
-        OptionalDouble avgGradeLevel = youTubeVideosList.stream()
-            .mapToDouble(YouTubeVideo::getFleschKincaidGradeLevel)
-            .average();
-        
-        OptionalDouble avgEaseScore = youTubeVideosList.stream()
-            .mapToDouble(YouTubeVideo::getFleschReadingEaseScore)
-            .average();
+        List<Double> gradeLevels = new ArrayList<>();
+        List<Double> easeScores = new ArrayList<>();
 
-        averageFleschKincaidGradeLevel = avgGradeLevel.orElse(0.0);
-        averageFleschReadingEaseScore = avgEaseScore.orElse(0.0);
+        for (YouTubeVideo video : youTubeVideosList) {
+            gradeLevels.add(video.getFleschKincaidGradeLevel());
+            easeScores.add(video.getFleschReadingEaseScore());
+        }
+        System.out.println("Grade Levels: " + gradeLevels);
+        System.out.println("Ease Scores: " + easeScores);
+
+        averageFleschKincaidGradeLevel = gradeLevels.stream()
+            .mapToDouble(Double::doubleValue)
+            .average()
+            .orElse(0.0);
+
+        averageFleschReadingEaseScore = easeScores.stream()
+            .mapToDouble(Double::doubleValue)
+            .average()
+            .orElse(0.0);
+        
+        averageFleschKincaidGradeLevel = new BigDecimal(averageFleschKincaidGradeLevel).setScale(3, RoundingMode.HALF_UP).doubleValue();
+        averageFleschReadingEaseScore = new BigDecimal(averageFleschReadingEaseScore).setScale(3, RoundingMode.HALF_UP).doubleValue();
     }
 }
