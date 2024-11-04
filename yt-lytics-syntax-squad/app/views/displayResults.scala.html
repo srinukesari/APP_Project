@@ -10,15 +10,17 @@
         @for((video, index) <- search.getYouTubeVideosList().zipWithIndex){
             <div class="video-item">
                 <div class="video-details">
-            @(index+1). <strong>Title: </strong> @video.getTitle(),
-            <strong>Channel: </strong> @video.getHtmlLinkforProfile(),
-            <strong>Description: </strong> @video.getDescription() <br>
-        </div>
-            <div class="video-thumbnail">
-                <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
+                    @(index+1). <strong>Title: </strong> @video.getHtmlLinkforTitle(),
+                    <strong>Channel: </strong> @video.getHtmlLinkforProfile(),
+                    <strong>Description: </strong> @video.getDescription()
+                    @video.getHtmlLinkforVideoTags<br>
+                </div>
+                <div class="video-thumbnail">
+                    <a href="https://www.youtube.com/watch?v=@video.getVideoId" target="_blank" rel="noopener noreferrer">
+                        <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
+                    </a>
+                </div>
             </div>
-
-    </div>
         }
     }
 </div>

@@ -1,13 +1,13 @@
-@(channelName : String)(searchResultsList: List[YouTubeVideo])
+@(hashTag : String)(searchResultsList: List[YouTubeVideo])
 
-@main("Profile") {
-<h1> channel name is @channelName</h1>
+@main("HashTags") {
+    <h1> HashTag is @hashTag</h1>
     @for((video,index) <- searchResultsList.zipWithIndex) {
         <div class="video-item">
             <div class="video-details">
                 @(index+1). <strong>Title: </strong> @video.getHtmlLinkforTitle(),
+                <strong>Channel: </strong> @video.getHtmlLinkforProfile(),
                 <strong>Description: </strong> @video.getDescription()
-                @video.getHtmlLinkforVideoTags<br>
             </div>
             <div class="video-thumbnail">
                 <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
