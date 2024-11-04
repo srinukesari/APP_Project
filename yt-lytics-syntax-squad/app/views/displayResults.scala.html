@@ -5,7 +5,9 @@
     @for(search <- searchResultsList) {
         <br><br>
         <div class="search-terms">Search terms: @search.getSearchTerms()
-            <a href="@routes.MoreStatsController.displayStats(search.getSearchTerms())">MoreStats</a>
+            <p><strong>Average Flesch-Kincaid Grade Level:</strong> @search.getAverageFleschKincaidGradeLevel()</p>
+            <p><strong>Average Flesch Reading Ease Score:</strong> @search.getAverageFleschReadingEaseScore()</p>
+            <a href="@routes.SearchController.displayStats(search.getSearchTerms())">MoreStats</a>
         </div>
         @for((video, index) <- search.getYouTubeVideosList().zipWithIndex){
             <div class="video-item">

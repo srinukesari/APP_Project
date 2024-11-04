@@ -14,6 +14,7 @@ import play.i18n.Messages;
 
 import play.i18n.MessagesApi;
 import javax.inject.Inject;
+import java.text.DecimalFormat;
 
 public class SearchController  extends Controller{
 
@@ -95,4 +96,21 @@ public class SearchController  extends Controller{
     }
 
 
+    public Result displayStats(String searchTerms) {
+        Optional<SearchResults> searchResultsOpt = displayResults.stream()
+            .filter(sr -> sr.getSearchTerms().equals(searchTerms))
+            .findFirst();
+
+        if (searchResultsOpt.isPresent()) {
+            List<YouTubeVideo> videos = searchResultsOpt.get().getYouTubeVideosList();
+            MoreStats stats = new MoreStats(searchTerms, videos);
+            Map<String, Long> wordStats = stats.getWordStatistics();
+            System.out.println(wordStats);
+
+            return ok(views.html.wordstats.render(wordStats));
+        } else {
+            return badRequest("No search results found for the given terms.");
+        }
+    }
+    
 }

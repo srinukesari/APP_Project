@@ -2,6 +2,9 @@ h2 {
     text-align:center;
     margin-top: 100px;
 }
+h1 {
+    text-align:center; 
+}
 .search-container {
     display: flex;
     align-items: center;
@@ -66,9 +69,6 @@ h2 {
     flex: 2;
     padding-right: 20px;
 }
-table {
-    background-image: linear-gradient(to right, #ff7e5f, #feb47b);
-  }
 
 .video-details strong {
     color: #333;
@@ -107,3 +107,39 @@ table {
     height: 60px;
     border-radius: 4px;
 }
+/* table {
+    background-image: linear-gradient(to right, #ff7e5f, #feb47b); 
+  } */
+  /* table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+  
+  tr:nth-child(even) {
+    background-color: rgba(150, 212, 212, 0.4);
+  }
+  
+  th:nth-child(even),td:nth-child(even) {
+    background-color: rgba(150, 212, 212, 0.4);
+  } */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  th, td {
+    text-align: left;
+    padding: 8px;
+    border: 1px solid black;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #D6EEEE;
+  }
+  tr {
+    border-bottom: 1px solid #ddd;
+  }
+  /* table, th, td {
+    border: 1px solid black;
+  } */
+
