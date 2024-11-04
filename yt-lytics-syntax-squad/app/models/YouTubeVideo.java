@@ -3,6 +3,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import play.twirl.api.Html;
 import java.util.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class YouTubeVideo{
     private String videoId;
@@ -11,6 +13,8 @@ public class YouTubeVideo{
     private String channel;
     private String thumbnailUrl;
     private List<String> tags;
+    private double fleschReadingEaseScore;
+    private double fleschKincaidGradeLevel;
 
     public YouTubeVideo(String videoId, String title, String channel, String description,
                         String thumbnailUrl,List<String> tags){
@@ -20,6 +24,8 @@ public class YouTubeVideo{
         this.description = description;
         this.thumbnailUrl = thumbnailUrl;
         this.tags = (tags != null) ? tags : new ArrayList<>();
+        calculateReadabilityScores();
+        
     }
 
     public String getVideoId(){ return  videoId;}
@@ -38,6 +44,13 @@ public class YouTubeVideo{
 
     public String getThumbnailUrl() {
         return thumbnailUrl;  
+    }
+    public double getFleschReadingEaseScore() {
+        return fleschReadingEaseScore;
+    }
+
+    public double getFleschKincaidGradeLevel() {
+        return fleschKincaidGradeLevel;
     }
 
     public List<String> getTags(){ return tags;}
@@ -86,5 +99,97 @@ public class YouTubeVideo{
             e.printStackTrace();
             return Html.apply("<p>"+tag+"</p>");
         }
+    }
+    private void calculateReadabilityScores() {
+        if (description == null || description.isEmpty()) {
+            fleschReadingEaseScore = 0.0;
+            fleschKincaidGradeLevel = 0.0;
+            return;
+        }
+        System.out.println("Description: " + description);
+        int totalWords = countWords(description);
+        int totalSentences = countSentences(description);
+        int totalSyllables = countSyllables(description);
+        if (totalSentences == 0) {
+            fleschReadingEaseScore = 0.0;
+            fleschKincaidGradeLevel = 0.0;
+            return;
+        }
+        fleschReadingEaseScore = (206.835 - (1.015 * ((double) totalWords / totalSentences))
+                                    - (84.6 * ((double) totalSyllables / totalWords)));
+        
+        fleschReadingEaseScore = new BigDecimal(fleschReadingEaseScore).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        if (fleschReadingEaseScore < 0) {
+            fleschReadingEaseScore = 0.0;
+        }
+        fleschKincaidGradeLevel = ((0.39 * ((double) totalWords / totalSentences))
+                                    + (11.8 * ((double) totalSyllables / totalWords)) - 15.59 );
+        fleschKincaidGradeLevel = new BigDecimal(fleschKincaidGradeLevel).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        if (fleschKincaidGradeLevel < 0) {
+            fleschKincaidGradeLevel = 0.0;
+        }
+
+    }
+
+    private int countWords(String text) {
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
+        String cleanedText = text.replaceAll("[\".,?()/:!'|]", " ");
+        System.out.println("cleaned text " +  cleanedText);
+
+        cleanedText = cleanedText.trim();
+        String[] words = cleanedText.split("\\s+");
+        // System.out.println(words);
+        System.out.println("Word count: " + words.length);
+        return words.length;
+    }
+
+    private int countSentences(String text) {
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
+         String[] sentences = text.split("[.!?]");
+        long sentenceCount = Arrays.stream(sentences).filter(s -> !s.trim().isEmpty()).count();
+        System.out.println("Sentence count: " + sentenceCount);
+        return (int) sentenceCount;
+    }
+
+    private int countSyllables(String text) {
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
+
+        int syllableCount = 0;
+        String[] words = text.split("\\s+");
+        
+        for (String word : words) {
+            syllableCount += countSyllablesInWord(word);
+        }
+        System.out.println("Total syllable count: " + syllableCount);
+        return syllableCount;
+    }
+
+    private int countSyllablesInWord(String word) {
+        word = word.toLowerCase();
+        int count = 0;
+        boolean vowel = false;
+
+        for (int i = 0; i < word.length(); i++) {
+            if ("aeiouy".indexOf(word.charAt(i)) >= 0) {
+                if (!vowel) {
+                    count++;
+                    vowel = true;
+                }
+            } else {
+                vowel = false;
+            }
+        }
+        if (word.endsWith("e")) {
+            count--;
+        }
+        int finalCount = Math.max(count, 1);
+        System.out.println("Syllables in word '" + word + "': " + finalCount);
+        return finalCount;
     }
 }

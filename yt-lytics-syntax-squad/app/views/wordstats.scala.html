@@ -1,7 +1,13 @@
 @(wordStats: Map[String, Long])
+
 @main("Word Statistics") {
     <h1>Word Statistics</h1>
-    <table>
+    <!-- <div class="filter">
+
+    </div> -->
+    
+    <!-- Table for displaying the data -->
+    <table >
         <thead>
             <tr>
                 <th>Word</th>
@@ -17,4 +23,16 @@
             }
         </tbody>
     </table>
+    
+    <!-- Canvas for the bar chart -->
+    <canvas id="wordStatsChart" width="400" height="200"
+        data-words="@wordStats.keys.mkString(",")"
+        data-frequencies="@wordStats.values.mkString(",")">
+    </canvas>
+
+    <!-- Load Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Link to external JavaScript file -->
+    <script src="@routes.Assets.versioned("javascripts/main.js")"></script>
 }

@@ -4,15 +4,19 @@
     <div class="search-results">
     @for(search <- searchResultsList) {
         <br><br>
-        <div class="search-terms">Search terms: @search.getSearchTerms()
-            <a href="@routes.MoreStatsController.displayStats(search.getSearchTerms())">MoreStats</a>
+        <div class="search-terms"><span class="search-term-title">Search terms:  @search.getSearchTerms() </span>
+            Average Flesch-Kincaid Grade Level: @search.getAverageFleschKincaidGradeLevel(), 
+            Average Flesch Reading Ease Score: @search.getAverageFleschReadingEaseScore(). 
+            <a href="@routes.SearchController.displayStats(search.getSearchTerms())" class="more-stats-link">More stats</a>
         </div>
         @for((video, index) <- search.getYouTubeVideosList().zipWithIndex){
             <div class="video-item">
                 <div class="video-details">
                     @(index+1). <strong>Title: </strong> @video.getHtmlLinkforTitle(),
                     <strong>Channel: </strong> @video.getHtmlLinkforProfile(),
-                    <strong>Description: </strong> @video.getDescription()
+                    <strong>Description: </strong> "@video.getDescription()". 
+                    Flesch-Kincaid Grade Level: @video.getFleschKincaidGradeLevel(),
+                    Flesch Reading Ease Score: @video.getFleschReadingEaseScore(). 
                     @video.getHtmlLinkforVideoTags<br>
                 </div>
                 <div class="video-thumbnail">
