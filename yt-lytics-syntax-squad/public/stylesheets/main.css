@@ -1,45 +1,42 @@
-h2 { 
-    text-align:center; 
+h2 {
+    text-align:center;
     margin-top: 100px;
 }
 .search-container {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 8px;
+    justify-content:center;
     margin-top: 20px;
-    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 .search-input {
-    padding: 10px 20px;
+    padding: 10px 30px 10px 10px;
     font-size: 16px;
+    margin-right:20px;
+    flex:1;
+    float:left;
     border: 1px solid #ccc;
-    width: 250px;
     outline: none;
-    padding-right: 30px; 
     background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-search" viewBox="0 0 16 16"%3E%3Cpath d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"%3E%3C/path%3E%3C/svg%3E');
     background-repeat: no-repeat;
-    background-position: right 10px center; 
+    background-position: right 10px center;
     background-size: 16px 16px;
 }
 
 .search-button {
     background-color: #007BFF;
     color: white;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    padding-right: 50px;
-    padding-left: 50px;
+    padding: 8px 30px;
     border: none;
-    border-radius: 20px; 
+    border-radius: 20px;
     font-size: 16px;
     cursor: pointer;
     font-weight: bold;
 }
 
 .search-button:hover {
-    background-color: #0056b3; 
+    background-color: #0056b3;
 }
 
 .search-results {
@@ -56,13 +53,13 @@ h2 {
 .video-item {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 0; 
-    padding-bottom: 5px; 
+    margin-bottom: 0;
+    padding-bottom: 5px;
 }
 
 .search-results .video-item + .video-item {
-    margin-top: 0; 
-    padding-top: 5px; 
+    margin-top: 0;
+    padding-top: 5px;
 }
 
 .video-details {
@@ -70,7 +67,7 @@ h2 {
     padding-right: 20px;
 }
 table {
-    background-image: linear-gradient(to right, #ff7e5f, #feb47b); 
+    background-image: linear-gradient(to right, #ff7e5f, #feb47b);
   }
 
 .video-details strong {
@@ -107,6 +104,6 @@ table {
 
 .video-thumbnail img {
     max-width: 100%;
-    height: auto;
+    height: 60px;
     border-radius: 4px;
 }

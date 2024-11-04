@@ -67,4 +67,32 @@ public class SearchController  extends Controller{
 
         return ok(profile.render(channelName,YTVideosList));
     }
+
+    public Result tags(Http.Request request){
+        String videoId = request.getQueryString("videoId");
+        String hashTag = request.getQueryString("hashTag");
+
+        if (videoId == null && hashTag == null) {
+            return badRequest("videoId/ hashTag not provided");
+        }
+        List<YouTubeVideo> YTVideosList = new ArrayList<>();
+        try {
+            if(videoId != null){
+                YTVideosList = YouTubeSearch.Search(videoId,"tags");
+                System.out.println("check the size "+YTVideosList);
+                return ok(videotags.render(videoId,YTVideosList));
+            } else {
+                YTVideosList = YouTubeSearch.Search(hashTag,"hashTag");
+                System.out.println("check the size "+YTVideosList);
+
+                return ok(tagsearch.render(hashTag,YTVideosList));
+            }
+        } catch (Exception e) {
+            System.out.println("check exception==== " + e);
+        }
+
+        return ok(videotags.render(videoId,YTVideosList));
+    }
+
+
 }

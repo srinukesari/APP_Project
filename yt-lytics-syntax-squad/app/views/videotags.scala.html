@@ -1,0 +1,20 @@
+@(videoId : String)(videos: List[YouTubeVideo])
+
+@main("Tags") {
+    <h1> Video Id is @videoId</h1>
+    @for((video) <- videos){
+        <div class="video-item">
+            <div class="video-details">
+                <strong>Title: </strong> @video.getHtmlLinkforTitle() <br>
+                <strong>Channel: </strong> @video.getHtmlLinkforProfile() <br>
+                <strong>Description: </strong> @video.getDescription() <br>
+                @for((tag) <- video.getTags()){
+                    <strong>@video.getHtmlLinkforTagSearch(tag)</strong> ,
+                }
+            </div>
+            <div class="video-thumbnail">
+                <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
+            </div>
+        </div>
+    }
+}
