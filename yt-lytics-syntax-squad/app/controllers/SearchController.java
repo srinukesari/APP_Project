@@ -20,13 +20,15 @@ public class SearchController  extends Controller{
 
     private final FormFactory formFactory;
     private final MessagesApi messagesApi;
+    private final YouTubeSearch youTubeSearch;
 
     public List<SearchResults> displayResults = new ArrayList<>();
 
     @Inject
-    public SearchController(FormFactory formFactory, MessagesApi messagesApi) {
+    public SearchController(FormFactory formFactory, MessagesApi messagesApi,YouTubeSearch youTubeSearch) {
         this.formFactory = formFactory;
         this.messagesApi = messagesApi;
+        this.youTubeSearch = youTubeSearch;
     }
 
     public Result search(Http.Request request){
@@ -36,12 +38,13 @@ public class SearchController  extends Controller{
         if(searchForm.hasErrors()){
             return badRequest();
         }
+        System.out.println("checker search form null ----"+searchForm==null);
         Search data = searchForm.get();
         String searchKey = data.getKey();
         if(searchKey != null && !searchKey.isEmpty()) {
             List<YouTubeVideo> YTVideosList = new ArrayList<>();
             try {
-                YTVideosList = YouTubeSearch.Search(searchKey,"home");
+                YTVideosList = youTubeSearch.Search(searchKey,"home");
             } catch (Exception e) {
                 System.out.println("check exception==== " + e);
             }
@@ -61,7 +64,7 @@ public class SearchController  extends Controller{
         }
         List<YouTubeVideo> YTVideosList = new ArrayList<>();
         try {
-            YTVideosList = YouTubeSearch.Search(channelName,"profile");
+            YTVideosList = youTubeSearch.Search(channelName,"profile");
         } catch (Exception e) {
             System.out.println("check exception==== " + e);
         }
@@ -79,11 +82,11 @@ public class SearchController  extends Controller{
         List<YouTubeVideo> YTVideosList = new ArrayList<>();
         try {
             if(videoId != null){
-                YTVideosList = YouTubeSearch.Search(videoId,"tags");
+                YTVideosList = youTubeSearch.Search(videoId,"tags");
                 System.out.println("check the size "+YTVideosList);
                 return ok(videotags.render(videoId,YTVideosList));
             } else {
-                YTVideosList = YouTubeSearch.Search(hashTag,"hashTag");
+                YTVideosList = youTubeSearch.Search(hashTag,"hashTag");
                 System.out.println("check the size "+YTVideosList);
 
                 return ok(tagsearch.render(hashTag,YTVideosList));
@@ -105,7 +108,6 @@ public class SearchController  extends Controller{
             List<YouTubeVideo> videos = searchResultsOpt.get().getYouTubeVideosList();
             MoreStats stats = new MoreStats(searchTerms, videos);
             Map<String, Long> wordStats = stats.getWordStatistics();
-            System.out.println(wordStats);
 
             return ok(views.html.wordstats.render(wordStats));
         } else {

@@ -97,6 +97,7 @@ public class YouTubeVideo{
             return Html.apply(htmlLink);
         }catch (Exception e){
             e.printStackTrace();
+            System.out.println("check here ---> "+ e);
             return Html.apply("<p>"+tag+"</p>");
         }
     }
@@ -106,7 +107,6 @@ public class YouTubeVideo{
             fleschKincaidGradeLevel = 0.0;
             return;
         }
-        System.out.println("Description: " + description);
         int totalWords = countWords(description);
         int totalSentences = countSentences(description);
         int totalSyllables = countSyllables(description);
@@ -136,12 +136,9 @@ public class YouTubeVideo{
             return 0;
         }
         String cleanedText = text.replaceAll("[\".,?()/:!'|]", " ");
-        System.out.println("cleaned text " +  cleanedText);
 
         cleanedText = cleanedText.trim();
         String[] words = cleanedText.split("\\s+");
-        // System.out.println(words);
-        System.out.println("Word count: " + words.length);
         return words.length;
     }
 
@@ -151,7 +148,6 @@ public class YouTubeVideo{
         }
          String[] sentences = text.split("[.!?]");
         long sentenceCount = Arrays.stream(sentences).filter(s -> !s.trim().isEmpty()).count();
-        System.out.println("Sentence count: " + sentenceCount);
         return (int) sentenceCount;
     }
 
@@ -166,7 +162,6 @@ public class YouTubeVideo{
         for (String word : words) {
             syllableCount += countSyllablesInWord(word);
         }
-        System.out.println("Total syllable count: " + syllableCount);
         return syllableCount;
     }
 
@@ -189,7 +184,6 @@ public class YouTubeVideo{
             count--;
         }
         int finalCount = Math.max(count, 1);
-        System.out.println("Syllables in word '" + word + "': " + finalCount);
         return finalCount;
     }
 }
