@@ -162,7 +162,7 @@ public class SearchControllerTest {
 
             String content = contentAsString(result);
 
-            System.out.println("check here -------->>>>>>"+content);
+            // System.out.println("check here -------->>>>>>"+content);
             assertEquals(OK, result.status());
             for (YouTubeVideo video : mockVideos) {
                 assertTrue("Expected video title in the html", content.contains(video.getTitle()));
@@ -210,5 +210,44 @@ public class SearchControllerTest {
             fail("IOException thrown: " + e.getMessage());
         }
     }
+
+    @Test
+    public void testDisplayStatsSearchFound() {
+        String searchTerm = "testTerm";
+        List<YouTubeVideo> mockVideos = new ArrayList<>();
+        mockVideos.add(new YouTubeVideo("Id1", "TestTerm Video One", "channel1", "This is a testTerm video description with some common words.", "thumbnail1", Arrays.asList("tag1", "tag2")));
+        mockVideos.add(new YouTubeVideo("Id2", "TestTerm Video Two", "channel1", "Another description for a testTerm video, also with testTerm and words.", "thumbnail2", Arrays.asList("tag3", "tag4")));
+
+        SearchResults mockSearchResults = new SearchResults(searchTerm, mockVideos);
+        searchController.displayResults.add(mockSearchResults);  
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method("GET")
+                .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
+
+        Result result = searchController.displayStats(searchTerm);
+        assertEquals(OK, result.status());
+        String content = contentAsString(result);
+        // System.out.println("check here -------->>>>>>" + content);
+        String normalizedContent = content.replaceAll("\\s+", " ");
+        // System.out.println("check here 2 -------->>>>>>" + normalizedContent);
+        assertTrue("The content should contain the word 'testterm' with frequency '5'", normalizedContent.contains("<td>testterm</td> <td>5</td>"));
+        assertTrue("The content should contain the word 'video' with frequency '4'", normalizedContent.contains("<td>video</td> <td>4</td>"));
+        assertTrue("The content should contain the word 'words' with frequency '2'", normalizedContent.contains("<td>words</td> <td>2</td>"));
+        assertTrue("The content should contain the word 'description' with frequency '2'", normalizedContent.contains("<td>description</td> <td>2</td>"));
+    }
+    @Test
+    public void testDisplayStatsSearchNotFound() {
+        String searchTerm = "nonExistentTerm";
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method("GET")
+                .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
+
+        Result result = searchController.displayStats(searchTerm);
+        assertEquals(BAD_REQUEST, result.status());
+        String content = contentAsString(result);
+        assertTrue("The content should contain an error message when no results are found", content.contains("No search results found for the given terms."));
+    }
+
+
 
 }
