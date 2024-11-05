@@ -82,7 +82,7 @@ public class YouTubeSearch {
     }
 
 
-    public static List<YouTubeVideo> Search(String search, String page) throws IOException {
+    public List<YouTubeVideo> Search(String search, String page) throws IOException {
         List<YouTubeVideo> videosList = new ArrayList<>();
         List<SearchResult> searchResults = new ArrayList<>();
         List<Video> videoDetails = new ArrayList<>();
