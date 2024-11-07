@@ -12,12 +12,28 @@
         @for((video, index) <- search.getYouTubeVideosList().zipWithIndex){
             <div class="video-item">
                 <div class="video-details">
-                    @(index+1). <strong>Title: </strong> @video.getHtmlLinkforTitle(),
-                    <strong>Channel: </strong> @video.getHtmlLinkforProfile(),
+                    @(index+1). <strong>Title: </strong>
+                        @if(video.getHtmlLinkforTitle().isEmpty) {
+                            @video.getTitle(),
+                        } else {
+                            <a href=@video.getHtmlLinkforTitle() target="_blank">@video.getTitle()</a>,
+                        }
+                    <strong>Channel: </strong> 
+                    @if(video.getHtmlLinkforProfile().isEmpty) {
+                        @video.getChannel(),
+                    } else {
+                    <a href=@video.getHtmlLinkforProfile() >@video.getChannel()</a>,
+                    }
                     <strong>Description: </strong> "@video.getDescription()". 
                     Flesch-Kincaid Grade Level = @video.getFleschKincaidGradeLevel(),
                     Flesch Reading Ease Score = @video.getFleschReadingEaseScore().
-                    @video.getHtmlLinkforVideoTags<br>
+                    @if(video.getHtmlLinkforVideoTags.isEmpty) {
+                        Tags <br>
+                    }else{
+                        <a href=@video.getHtmlLinkforVideoTags target="_blank">Tags</a>
+                    }
+
+                    <br>
                 </div>
                 <div class="video-thumbnail">
                     <a href="https://www.youtube.com/watch?v=@video.getVideoId" target="_blank" rel="noopener noreferrer">

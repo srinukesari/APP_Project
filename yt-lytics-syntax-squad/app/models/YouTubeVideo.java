@@ -1,7 +1,6 @@
 package models;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import play.twirl.api.Html;
 import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -55,50 +54,48 @@ public class YouTubeVideo{
 
     public List<String> getTags(){ return tags;}
 
-    public Html getHtmlLinkforTitle(){
+    public String getHtmlLinkforTitle(){
         try {
             String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
-            String htmlLink = String.format("<a href=\"%s\" target=\"_blank\">%s</a>", videoUrl, title);
-            return Html.apply(htmlLink);
+            return videoUrl;
         } catch (Exception e) {
             e.printStackTrace();
-            return Html.apply("<p>"+title+"</p>");
+            return "";
         }
     }
 
-    public Html getHtmlLinkforProfile(){
+    public String getHtmlLinkforProfile(){
         try {
-            String htmlLink = String.format("<a href=\"/ytlytics/profile?channel=%s\">%s</a>",
-                    URLEncoder.encode(channel, StandardCharsets.UTF_8.toString()),
-                    channel);
-            return Html.apply(htmlLink);
+            String htmlLink = String.format("/ytlytics/profile?channel=%s",
+                    URLEncoder.encode(channel, StandardCharsets.UTF_8.toString()));
+            return htmlLink;
         } catch (Exception e) {
             e.printStackTrace();
-            return Html.apply("<p>"+channel+"</p>");
+            return "";
         }
     }
 
-    public Html getHtmlLinkforVideoTags(){
+    public String getHtmlLinkforVideoTags(){
         try {
-            String htmlLink = String.format("<a href=\"/ytlytics/tags?videoId=%s\">Tags</a>",
+            String htmlLink = String.format("/ytlytics/tags?videoId=%s",
                     URLEncoder.encode(videoId, StandardCharsets.UTF_8.toString()));
-            return Html.apply(htmlLink);
+            return htmlLink;
         } catch (Exception e) {
             e.printStackTrace();
-            return Html.apply("<p>Tags</p>");
+            return "";
         }
     }
 
-    public Html getHtmlLinkforTagSearch(String tag){
+    public String getHtmlLinkforTagSearch(String tag){
         try{
-            String htmlLink = String.format("<a href=\"/ytlytics/tags?hashTag=%s\">%s</a>",
+            String htmlLink = String.format("/ytlytics/tags?hashTag=%s",
                     URLEncoder.encode(tag, StandardCharsets.UTF_8.toString()),
                     tag);
-            return Html.apply(htmlLink);
+            return htmlLink;
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("check here ---> "+ e);
-            return Html.apply("<p>"+tag+"</p>");
+            return "";
         }
     }
     private void calculateReadabilityScores() {

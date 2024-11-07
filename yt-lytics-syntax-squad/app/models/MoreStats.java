@@ -13,6 +13,7 @@ public class MoreStats {
     }
 
     public Map<String, Long> getWordStatistics() {
+        System.out.println("Word stats count is here "+youTubeVideosList.size());
         return youTubeVideosList.stream()
                 .flatMap(video -> Arrays.stream((video.getTitle() + " " + video.getDescription()).split("\\W+")))
                 .filter(word -> !word.isEmpty())

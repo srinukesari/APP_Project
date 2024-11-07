@@ -15,8 +15,7 @@ import java.util.*;
 import models.*;
 
 public class YouTubeSearch {
-    private static final String API_KEY = "AIzaSyD0a1-a6o2zk6koHCCA-yJ827fRfPpDP5U";
-    //"AIzaSyCUFy3WvnJYPDmrv6tA80xGw3-uzjo36bk"; // srinu's api key
+    private static final String API_KEY = "AIzaSyD52jNisyPmmiFWWQ_YckDUx4VAxUAyCK4";
 
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
@@ -45,7 +44,7 @@ public class YouTubeSearch {
                 .setChannelId(channelId)
                 .setType("video")
                 .setOrder("date")
-                .setMaxResults(10L)
+                .setMaxResults(50L)
                 .setKey(API_KEY);
 
         return searchVideosRequest;
@@ -57,7 +56,7 @@ public class YouTubeSearch {
                 .list("snippet")
                 .setQ(searchKey)
                 .setType("video")
-                .setMaxResults(10L)
+                .setMaxResults(50L)
                 .setKey(API_KEY);
     }
 
