@@ -215,21 +215,23 @@ public class SearchControllerTest {
     public void testDisplayStatsSearchFound() {
         String searchTerm = "testTerm";
         List<YouTubeVideo> mockVideos = new ArrayList<>();
-        mockVideos.add(new YouTubeVideo("Id1", "TestTerm Video One", "channel1", "This is a testTerm video description with some common words.", "thumbnail1", Arrays.asList("tag1", "tag2")));
-        mockVideos.add(new YouTubeVideo("Id2", "TestTerm Video Two", "channel1", "Another description for a testTerm video, also with testTerm and words.", "thumbnail2", Arrays.asList("tag3", "tag4")));
-
+        mockVideos.add(new YouTubeVideo("Id1", "TestTerm Video One", "channel1", 
+            "This is a testTerm video description with some common words.", "thumbnail1", Arrays.asList("tag1", "tag2")));
+        mockVideos.add(new YouTubeVideo("Id2", "TestTerm Video Two", "channel1", 
+            "Another description for a testTerm video, also with testTerm and words.", "thumbnail2", Arrays.asList("tag3", "tag4")));
         SearchResults mockSearchResults = new SearchResults(searchTerm, mockVideos);
-        searchController.displayResults.add(mockSearchResults);  
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method("GET")
-                .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
-
+        searchController.morestatsResults.add(mockSearchResults); 
+        try {
+            Mockito.when(youTubeSearch.Search(searchTerm, "home")).thenReturn(mockVideos);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception while mocking YouTubeSearch");
+        }
         Result result = searchController.displayStats(searchTerm);
         assertEquals(OK, result.status());
         String content = contentAsString(result);
-        // System.out.println("check here -------->>>>>>" + content);
+        // System.out.println("check here ----->" + content);
         String normalizedContent = content.replaceAll("\\s+", " ");
-        // System.out.println("check here 2 -------->>>>>>" + normalizedContent);
         assertTrue("The content should contain the word 'testterm' with frequency '5'", normalizedContent.contains("<td>testterm</td> <td>5</td>"));
         assertTrue("The content should contain the word 'video' with frequency '4'", normalizedContent.contains("<td>video</td> <td>4</td>"));
         assertTrue("The content should contain the word 'words' with frequency '2'", normalizedContent.contains("<td>words</td> <td>2</td>"));
@@ -239,9 +241,9 @@ public class SearchControllerTest {
     @Test
     public void testDisplayStatsSearchNotFound() {
         String searchTerm = "nonExistentTerm";
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method("GET")
-                .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
+        // Http.RequestBuilder request = Helpers.fakeRequest()
+        //         .method("GET")
+        //         .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
 
         Result result = searchController.displayStats(searchTerm);
         assertEquals(BAD_REQUEST, result.status());
@@ -256,9 +258,9 @@ public class SearchControllerTest {
         searchController.displayResults.clear();
         List<YouTubeVideo> mockVideos = new ArrayList<>();
         SearchResults mockSearchResults = new SearchResults(searchTerm, mockVideos);
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method("GET")
-                .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
+        // Http.RequestBuilder request = Helpers.fakeRequest()
+        //         .method("GET")
+        //         .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
         Result result = searchController.displayStats(searchTerm);
         assertEquals(BAD_REQUEST, result.status());
         String content = contentAsString(result);
