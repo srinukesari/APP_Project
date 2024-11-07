@@ -235,6 +235,7 @@ public class SearchControllerTest {
         assertTrue("The content should contain the word 'words' with frequency '2'", normalizedContent.contains("<td>words</td> <td>2</td>"));
         assertTrue("The content should contain the word 'description' with frequency '2'", normalizedContent.contains("<td>description</td> <td>2</td>"));
     }
+
     @Test
     public void testDisplayStatsSearchNotFound() {
         String searchTerm = "nonExistentTerm";
@@ -249,5 +250,20 @@ public class SearchControllerTest {
     }
 
 
-
+    @Test
+    public void testDisplayStatsWithEmptyResults() {
+        String searchTerm = "validSearchTermWithNoResults";
+        searchController.displayResults.clear();
+        List<YouTubeVideo> mockVideos = new ArrayList<>();
+        SearchResults mockSearchResults = new SearchResults(searchTerm, mockVideos);
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method("GET")
+                .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
+        Result result = searchController.displayStats(searchTerm);
+        assertEquals(BAD_REQUEST, result.status());
+        String content = contentAsString(result);
+        System.out.println("check here ----->" + content);
+        assertTrue(content.contains("No search results found for the given terms."));
+    }
+    
 }

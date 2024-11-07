@@ -5,11 +5,29 @@
     @for((video) <- videos){
         <div class="video-item">
             <div class="video-details">
-                <strong>Title: </strong> @video.getHtmlLinkforTitle() <br>
-                <strong>Channel: </strong> @video.getHtmlLinkforProfile() <br>
+                <strong>Title: </strong> 
+                @if(video.getHtmlLinkforTitle().isEmpty) {
+                    @video.getTitle(),
+                } else {
+                    <a href=@video.getHtmlLinkforTitle() target="_blank">@video.getTitle()</a>,
+                }
+                <br>
+                <strong>Channel: </strong>
+                @if(video.getHtmlLinkforProfile().isEmpty) {
+                    @video.getChannel(),
+                } else {
+                <a href=@video.getHtmlLinkforProfile() >@video.getChannel()</a>,
+                }
+                <br>
                 <strong>Description: </strong> @video.getDescription() <br>
                 @for((tag) <- video.getTags()){
-                    <strong>@video.getHtmlLinkforTagSearch(tag)</strong> ,
+                    <strong> 
+                        @if(video.getHtmlLinkforTagSearch(tag).isEmpty) {
+                            Tags <br>
+                        }else{
+                            <a href=@video.getHtmlLinkforTagSearch(tag)>@tag</a> 
+                        }
+                    </strong>,
                 }
             </div>
             <div class="video-thumbnail">

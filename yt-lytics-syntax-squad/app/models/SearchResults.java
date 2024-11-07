@@ -3,6 +3,7 @@ import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+
 public class SearchResults {
     private String searchTerms;
     private List<YouTubeVideo> youTubeVideosList;
@@ -38,6 +39,7 @@ public class SearchResults {
             gradeLevels.add(video.getFleschKincaidGradeLevel());
             easeScores.add(video.getFleschReadingEaseScore());
         }
+        
         System.out.println("Grade Levels: " + gradeLevels);
         System.out.println("Ease Scores: " + easeScores);
 

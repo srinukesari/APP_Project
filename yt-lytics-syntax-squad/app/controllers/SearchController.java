@@ -15,6 +15,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import javax.inject.Inject;
 import java.text.DecimalFormat;
+import com.google.gson.Gson;
 
 public class SearchController  extends Controller{
 
@@ -23,6 +24,7 @@ public class SearchController  extends Controller{
     private final YouTubeSearch youTubeSearch;
 
     public List<SearchResults> displayResults = new ArrayList<>();
+    public List<SearchResults> morestatsResults = new ArrayList<>();
 
     @Inject
     public SearchController(FormFactory formFactory, MessagesApi messagesApi,YouTubeSearch youTubeSearch) {
@@ -38,23 +40,35 @@ public class SearchController  extends Controller{
         if(searchForm.hasErrors()){
             return badRequest();
         }
-        System.out.println("checker search form null ----"+searchForm==null);
         Search data = searchForm.get();
         String searchKey = data.getKey();
         if(searchKey != null && !searchKey.isEmpty()) {
-            List<YouTubeVideo> YTVideosList = new ArrayList<>();
-            try {
-                YTVideosList = youTubeSearch.Search(searchKey,"home");
-            } catch (Exception e) {
-                System.out.println("check exception==== " + e);
-            }
+            // if(displayResults.size() > 0 && displayResults.get(0).getSearchTerms().trim().toLowerCase().equals(searchKey.trim().toLowerCase())){
+            //     // top record is the search key no need to call api again
+            // }else{
+                List<YouTubeVideo> YTVideosList = new ArrayList<>();
+                List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
 
-            System.out.println("comes here to check111 " + searchForm + data + searchKey);
-            SearchResults sr = new SearchResults(searchKey, YTVideosList);
-            displayResults.add(0, sr);
+                try {
+                    YTVideosList = youTubeSearch.Search(searchKey,"home");
+                    MorestatsVideosList = youTubeSearch.Search(searchKey,"home");
+                    if (YTVideosList.size() > 10) {
+                        YTVideosList = YTVideosList.subList(0, 10); 
+                    }
+                } catch (Exception e) {
+                    System.out.println("check exception==== " + e);
+                }
+                System.out.println("comes here to check111 " + searchForm + data + searchKey);
+                SearchResults sr = new SearchResults(searchKey, YTVideosList);
+                SearchResults sr1 = new SearchResults(searchKey, MorestatsVideosList);
+                displayResults.add(0, sr);
+                morestatsResults.add(0, sr1);
+            // }
         }
+        Search emptySearch = new Search();
+        emptySearch.setKey("");  
+        return ok(search.render(searchForm.fill(emptySearch), displayResults, messages));
 
-        return ok(search.render(searchForm,displayResults,messages));
     }
 
     public Result profile(Http.Request request){
@@ -100,7 +114,7 @@ public class SearchController  extends Controller{
 
 
     public Result displayStats(String searchTerms) {
-        Optional<SearchResults> searchResultsOpt = displayResults.stream()
+        Optional<SearchResults> searchResultsOpt = morestatsResults.stream()
             .filter(sr -> sr.getSearchTerms().equals(searchTerms))
             .findFirst();
 

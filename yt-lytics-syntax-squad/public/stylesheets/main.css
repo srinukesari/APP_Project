@@ -11,7 +11,7 @@ h1 {
     justify-content:center;
     margin-top: 20px;
     white-space: nowrap;
-    gap: 10px;
+    /* gap: 10px; */
 }
 .search-term-title {
     font-size: 20px; 

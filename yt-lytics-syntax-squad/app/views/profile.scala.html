@@ -5,9 +5,18 @@
     @for((video,index) <- searchResultsList.zipWithIndex) {
         <div class="video-item">
             <div class="video-details">
-                @(index+1). <strong>Title: </strong> @video.getHtmlLinkforTitle(),
+                @(index+1). <strong>Title: </strong> 
+                @if(video.getHtmlLinkforTitle().isEmpty) {
+                    @video.getTitle(),
+                } else {
+                    <a href=@video.getHtmlLinkforTitle() target="_blank">@video.getTitle()</a>,
+                }
                 <strong>Description: </strong> @video.getDescription()
-                @video.getHtmlLinkforVideoTags<br>
+                @if(video.getHtmlLinkforVideoTags.isEmpty) {
+                    Tags <br>
+                }else{
+                    <a href=@video.getHtmlLinkforVideoTags target="_blank">Tags</a>
+                }
             </div>
             <div class="video-thumbnail">
                 <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
