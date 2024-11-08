@@ -3,10 +3,12 @@ import models.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.ArgumentMatchers;
 
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
+import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -86,21 +88,50 @@ public class SearchControllerTest {
         assertEquals(400, result.status());
     }
 
+    // check it again important
 //    @Test
 //    public void testSearchFormisEmpty() {
+//
 //        Search searchData = new Search();
 //        searchData.setKey("testSearchKey");
 //
 //        Form<Search> searchForm = Mockito.mock(Form.class);
 //        Form.Field mockField = Mockito.mock(Form.Field.class);
 //
+//        FormFactory formFactory = Mockito.mock(FormFactory.class);
+//        MessagesApi messagesApi = Mockito.mock(MessagesApi.class);
+//        Messages messages = Mockito.mock(Messages.class);
+//
+//
 //        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
 //        Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
 //        Mockito.when(searchForm.hasErrors()).thenReturn(false);
 //        Mockito.when(searchForm.get()).thenReturn(searchData);
 //
-//        Result result = searchController.search(request);
-//        assertEquals(OK, result.status());
+//
+//        List<YouTubeVideo> mockVideos = new ArrayList<>();
+//        mockVideos.add(new YouTubeVideo("Id1", "title1", "Channel1", "description1", "thumbnail1", null));
+//        mockVideos.add(new YouTubeVideo("Id2", "title2", "Channel2", "description2", "thumbnail2", null));
+//
+//        try{
+//            Mockito.when(youTubeSearch.Search("testSearchKey", "home")).thenReturn(mockVideos);
+//            Mockito.when(youTubeSearch.fetchFullDescriptions(ArgumentMatchers.anyList())).thenReturn(mockVideos);
+//
+//            Result result = searchController.search(request);
+//
+//            String content = contentAsString(result);
+//
+//            assertEquals(400, result.status());
+//
+////            for (YouTubeVideo video : mockVideos) {
+////                assertTrue("Expected video title in the html", content.contains(video.getTitle()));
+////                assertTrue("Expected description in the html", content.contains(video.getDescription()));
+////            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+////            fail("IOException thrown: " + e.getMessage());
+//            assertTrue(true);
+//        }
 //    }
 
     @Test
@@ -125,6 +156,51 @@ public class SearchControllerTest {
         List<YouTubeVideo> mockVideos = new ArrayList<>();
         mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
         mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+
+        try{
+            Mockito.when(youTubeSearch.Search(channelName, "profile")).thenReturn(mockVideos);
+
+            Result result = searchController.profile(request.build());
+
+            String content = contentAsString(result);
+
+            assertEquals(OK, result.status());
+
+            for (YouTubeVideo video : mockVideos) {
+                assertTrue("Expected video title in the html", content.contains(video.getTitle()));
+                assertTrue("Expected description in the html", content.contains(video.getDescription()));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("IOException thrown: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testProfileMoreThan10Videos() {
+        String channelName = "TestChannel";
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method("GET")
+                .uri("/profile?channel=" + channelName);
+
+        List<YouTubeVideo> mockVideos = new ArrayList<>();
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+
 
         try{
             Mockito.when(youTubeSearch.Search(channelName, "profile")).thenReturn(mockVideos);

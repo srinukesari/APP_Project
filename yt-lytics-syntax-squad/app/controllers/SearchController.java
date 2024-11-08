@@ -46,7 +46,7 @@ public class SearchController  extends Controller{
         if(data == null) return badRequest();
 
         String searchKey = data.getKey();
-        if(!searchKey.isEmpty()) {
+        if(searchKey != null && !searchKey.isEmpty()) {
             // if(displayResults.size() > 0 && displayResults.get(0).getSearchTerms().trim().toLowerCase().equals(searchKey.trim().toLowerCase())){
             //     // top record is the search key no need to call api again
             // }else{
@@ -79,9 +79,11 @@ public class SearchController  extends Controller{
                 displayResults.add(0, sr);
                 morestatsResults.add(0, sr1);
             // }
+        }else{
+            return badRequest("search key is empty or null");
         }
         Search emptySearch = new Search();
-        emptySearch.setKey("");  
+        emptySearch.setKey("");
         return ok(search.render(searchForm.fill(emptySearch), displayResults, messages));
 
     }

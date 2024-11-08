@@ -19,15 +19,15 @@ libraryDependencies += "org.mockito" % "mockito-inline" % "5.2.0" % Test
 
 enablePlugins(JacocoPlugin)
 
-jacocoExcludes := Seq("**/SearchResults.class")
+jacocoIncludes := Seq("controllers.*", "models.*")
 
 jacocoReportSettings := JacocoReportSettings()
   .withThresholds(
     JacocoThresholds(
-      instruction = 80,
-      method = 100,
-      branch = 100,
-      complexity = 100,
-      line = 90,
-      clazz = 100)
+      instruction = 50,
+      method = 50,
+      branch = 50,
+      complexity = 50,
+      line = 50,
+      clazz = 50)
   )

@@ -15,7 +15,8 @@ import java.util.*;
 import models.*;
 
 public class YouTubeSearch {
-    private static final String API_KEY = "AIzaSyD0a1-a6o2zk6koHCCA-yJ827fRfPpDP5U";
+    private static final String API_KEY = "AIzaSyATDszuEMCnKfoxdjnT9rhfvpL3ONbsYtE";
+            //"AIzaSyD0a1-a6o2zk6koHCCA-yJ827fRfPpDP5U";
     //"AIzaSyCUFy3WvnJYPDmrv6tA80xGw3-uzjo36bk"; // srinu's api key
 
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -162,9 +163,6 @@ public class YouTubeSearch {
 
     public List<YouTubeVideo> fetchFullDescriptions(List<String> videoIds) throws IOException {
         List<YouTubeVideo> videosList = new ArrayList<>();
-        YouTube youtubeService = new YouTube.Builder(new NetHttpTransport(), JSON_FACTORY, (HttpRequestInitializer) null)
-                .setApplicationName("YTLyticsSyntaxSquad")
-                .build();
         YouTube.Videos.List videoRequest = youtubeService.videos()
                 .list("snippet")  
                 .setKey(API_KEY);
