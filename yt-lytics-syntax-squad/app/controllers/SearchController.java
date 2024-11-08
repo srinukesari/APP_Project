@@ -97,6 +97,9 @@ public class SearchController  extends Controller{
         List<YouTubeVideo> YTVideosList = new ArrayList<>();
         try {
             YTVideosList = youTubeSearch.Search(channelName,"profile");
+            if (YTVideosList.size() > 10) {
+                YTVideosList = YTVideosList.subList(0, 10); 
+            }
         } catch (Exception e) {
             System.out.println("check exception==== " + e);
         }
