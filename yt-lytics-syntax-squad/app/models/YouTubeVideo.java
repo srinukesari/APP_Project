@@ -5,6 +5,7 @@ import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/* @author: team */
 public class YouTubeVideo{
     private static final int DESCRIPTION_PREVIEW_LENGTH = 100;
     private String videoId;
@@ -39,6 +40,12 @@ public class YouTubeVideo{
     }
 
     public String getDescription() {
+        return description;
+    }
+
+    public String getShortDescription(){
+        if(description.length() > 50)
+            return description.substring(0,50)+"...";
         return description;
     }
 

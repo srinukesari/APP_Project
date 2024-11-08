@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/* @author: Team */
 public class SearchController  extends Controller{
 
     private final FormFactory formFactory;
@@ -35,6 +36,7 @@ public class SearchController  extends Controller{
         this.youTubeSearch = youTubeSearch;
     }
 
+    /* @author: aniket */
     public Result search(Http.Request request){
         Form<Search> searchForm = formFactory.form(Search.class).bindFromRequest(request);
         Messages messages = messagesApi.preferred(request);
@@ -79,8 +81,6 @@ public class SearchController  extends Controller{
                 displayResults.add(0, sr);
                 morestatsResults.add(0, sr1);
             // }
-        }else{
-            return badRequest("search key is empty or null");
         }
         Search emptySearch = new Search();
         emptySearch.setKey("");
@@ -88,6 +88,7 @@ public class SearchController  extends Controller{
 
     }
 
+    /* @author: sushmitha */
     public Result profile(Http.Request request){
         String channelName = request.getQueryString("channel");
         if (channelName == null) {
@@ -106,6 +107,7 @@ public class SearchController  extends Controller{
         return ok(profile.render(channelName,YTVideosList));
     }
 
+    /* @author: srinu.kesari */
     public Result tags(Http.Request request){
         String videoId = request.getQueryString("videoId");
         String hashTag = request.getQueryString("hashTag");
@@ -127,7 +129,7 @@ public class SearchController  extends Controller{
         }
     }
 
-
+    /* @author: sahithi */
     public Result displayStats(String searchTerms) {
         Optional<SearchResults> searchResultsOpt = morestatsResults.stream()
             .filter(sr -> sr.getSearchTerms().equals(searchTerms))
@@ -143,6 +145,8 @@ public class SearchController  extends Controller{
             return badRequest("No search results found for the given terms.");
         }
     }
+
+    /* @author: sahithi */
     public double calculateAverageFleschKincaidGradeLevel(List<YouTubeVideo> videos) {
         List<Double> gradeLevels = new ArrayList<>();
         for (YouTubeVideo video : videos) {
@@ -156,6 +160,7 @@ public class SearchController  extends Controller{
         return averageFleschKincaidGradeLevel;
     }
 
+    /* @author: sahithi */
     public double calculateAverageFleschReadingEaseScore(List<YouTubeVideo> videos) {
         List<Double> easeScores = new ArrayList<>();
         for (YouTubeVideo video : videos) {

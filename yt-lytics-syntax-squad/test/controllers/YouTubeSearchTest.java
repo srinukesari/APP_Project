@@ -30,6 +30,7 @@ public class YouTubeSearchTest {
         youtubeSearchDefault = new YouTubeSearch();
     }
 
+    /* @author: sushmitha */
     @Test
     public void testGetSearchRequestforProfile_FoundChannel() throws IOException {
         YouTube.Search.List searchChannelRequest = mock(YouTube.Search.List.class);
@@ -55,6 +56,7 @@ public class YouTubeSearchTest {
         assertNotNull(result);
     }
 
+    /* @author: sushmitha */
     @Test
     public void testGetSearchRequestforProfile_NoChannelsFound() throws IOException {
         YouTube.Search.List searchChannelRequest = mock(YouTube.Search.List.class);
@@ -74,24 +76,28 @@ public class YouTubeSearchTest {
         assertNull(result);
     }
 
+    /* @author: aniket */
     @Test
     public void testGetSearchRequestforHome() throws IOException {
         YouTube.Search.List searchRequest = YouTubeSearch.getSearchRequestforHome(youtubeService, "sampleSearch");
         assertNotNull(searchRequest);
     }
 
+    /* @author: srinu.kesari */
     @Test
     public void testGetSearchRequestforTags() throws IOException {
         YouTube.Search.List searchRequest = YouTubeSearch.getSearchRequestforTags(youtubeService, "sampleSearch");
         assertNotNull(searchRequest);
     }
 
+    /* @author: srinu.kesari */
     @Test
     public void testGetVideoRequestforTags() throws IOException {
         YouTube.Videos.List searchRequest = YouTubeSearch.getVideoRequestforTags(youtubeService, "sampleSearch");
         assertNotNull(searchRequest);
     }
 
+    /* @author: aniket */
     @Test
     public void testSearch_HomePage_EmptyResult() throws IOException {
 
@@ -120,6 +126,7 @@ public class YouTubeSearchTest {
         assertTrue(videos.isEmpty());
     }
 
+    /* @author: srinu.kesari */
     @Test
     public void testSearch_HashTagPage_EmptyResult() throws IOException {
 
@@ -148,12 +155,14 @@ public class YouTubeSearchTest {
         assertTrue(videos.isEmpty());
     }
 
+    /* @author: srinu.kesari */
     @Test
     public void testSearch_WithNoRequest() throws IOException {
         List<YouTubeVideo> videos = youtubeSearch.Search("noResults", "nopage");
         assertTrue(videos.isEmpty());
     }
 
+    /* @author: sahithi */
     @Test
     public void testSearch_TagsPage() throws IOException {
         YouTube.Videos.List videoRequest = mock(YouTube.Videos.List.class);
@@ -192,6 +201,7 @@ public class YouTubeSearchTest {
         assertEquals("http://example.com/thumbnail.jpg", youtubeVideo.getThumbnailUrl());
     }
 
+    /* @author: sahithi */
     @Test
     public void testSearch_TagsPage_EmptyResult() throws IOException {
         YouTube.Videos.List videoRequest = mock(YouTube.Videos.List.class);
@@ -210,6 +220,7 @@ public class YouTubeSearchTest {
         assertTrue(videos.isEmpty()); 
     }
 
+    /* @author: sahithi */
     @Test
     public void testFetchFullDescriptions_SingleVideo() throws IOException {
         List<String> videoIds = Collections.singletonList("testVideoId");
@@ -248,7 +259,8 @@ public class YouTubeSearchTest {
         assertEquals("Test Tag", youtubeVideo.getTags().get(0));
         assertEquals("http://example.com/thumbnail.jpg", youtubeVideo.getThumbnailUrl());  
     }
-    
+
+    /* @author: sahithi */
     @Test
     public void testFetchFullDescriptions_NoVideosFound() throws IOException {
         List<String> videoIds = Collections.singletonList("nonExistentVideoId");

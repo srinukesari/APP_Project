@@ -3,7 +3,7 @@ import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-
+/* @author: team */
 public class SearchResults {
     private String searchTerms;
     private List<YouTubeVideo> youTubeVideosList;
