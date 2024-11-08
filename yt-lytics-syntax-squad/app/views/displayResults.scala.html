@@ -24,7 +24,11 @@
                     } else {
                     <a href=@video.getHtmlLinkforProfile() >@video.getChannel()</a>,
                     }
-                    <strong>Description: </strong> "@video.getDescription()". 
+                    <strong>Description: </strong>
+                    <span class="description" data-full-description='@video.getDescription()'>
+                       "@video.getDescription()"
+                    </span>
+                   
                     Flesch-Kincaid Grade Level = @video.getFleschKincaidGradeLevel(),
                     Flesch Reading Ease Score = @video.getFleschReadingEaseScore().
                     @if(video.getHtmlLinkforVideoTags.isEmpty) {
@@ -44,4 +48,22 @@
         }
     }
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+            var maxLength = 200; 
+            var descriptions = document.querySelectorAll('.description');
+
+            descriptions.forEach(function(desc) {
+                var fullDescription = desc.getAttribute('data-full-description');
+                fullDescription = '"' + fullDescription + '"';
+
+                if (fullDescription.length > maxLength) {
+                    var truncatedDescription = fullDescription.substring(0, maxLength) + "... ";
+                    desc.innerHTML = truncatedDescription + '"';
+                } else {
+                    desc.innerHTML = fullDescription;
+                }
+            });
+        });
+</script>
 }

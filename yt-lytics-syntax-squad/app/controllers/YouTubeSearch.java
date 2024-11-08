@@ -85,6 +85,7 @@ public class YouTubeSearch {
         List<YouTubeVideo> videosList = new ArrayList<>();
         List<SearchResult> searchResults = new ArrayList<>();
         List<Video> videoDetails = new ArrayList<>();
+        // System.out.println("Printing for 1st time");
 
         YouTube youtubeService = new YouTube.Builder(new NetHttpTransport(), JSON_FACTORY, (HttpRequestInitializer) null)
                 .setApplicationName("YTLyticsSyntaxSquad")
@@ -119,6 +120,7 @@ public class YouTubeSearch {
         // based on the page show the videos to the end user
         if(page == "tags") {
             for (Video video : videoDetails) {
+                // String fullDescription = video.getSnippet().getDescription();
                 List<String> tags = video.getSnippet().getTags();
                 String thumbnailUrl = video.getSnippet().getThumbnails().getDefault().getUrl();
                 videosList.add(
@@ -147,7 +149,35 @@ public class YouTubeSearch {
                 );
             }
         }
+        return videosList;
+    }
 
+    public List<YouTubeVideo> fetchFullDescriptions(List<String> videoIds) throws IOException {
+        List<YouTubeVideo> videosList = new ArrayList<>();
+        YouTube youtubeService = new YouTube.Builder(new NetHttpTransport(), JSON_FACTORY, (HttpRequestInitializer) null)
+                .setApplicationName("YTLyticsSyntaxSquad")
+                .build();
+        YouTube.Videos.List videoRequest = youtubeService.videos()
+                .list("snippet")  
+                .setKey(API_KEY);
+
+        for (int i = 0; i < videoIds.size(); i += 50) {
+            List<String> batch = videoIds.subList(i, Math.min(i + 50, videoIds.size()));
+            videoRequest.setId(String.join(",", batch)); 
+            VideoListResponse videoResponse = videoRequest.execute();
+            
+            for (Video video : videoResponse.getItems()) {
+                YouTubeVideo youtubeVideo = new YouTubeVideo(
+                    video.getId(),
+                    video.getSnippet().getTitle(),
+                    video.getSnippet().getChannelTitle(),
+                    video.getSnippet().getDescription(),  
+                    video.getSnippet().getThumbnails().getDefault().getUrl(),
+                    video.getSnippet().getTags()
+                );
+                videosList.add(youtubeVideo);
+            }
+        }
         return videosList;
     }
 }
