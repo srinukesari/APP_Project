@@ -15,7 +15,7 @@ libraryDependencies += "org.junit.jupiter" % "junit-jupiter-api" % "5.7.0" % Tes
 libraryDependencies += "org.junit.jupiter" % "junit-jupiter-engine" % "5.7.0" % Test
 libraryDependencies += "org.mockito" % "mockito-core" % "3.9.0" % Test
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.8"
-
+libraryDependencies += "org.mockito" % "mockito-inline" % "5.2.0" % Test
 
 enablePlugins(JacocoPlugin)
 

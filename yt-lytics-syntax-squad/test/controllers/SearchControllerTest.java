@@ -15,8 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import org.mockito.Mock;
 import org.mockito.InjectMocks;
@@ -55,35 +53,50 @@ public class SearchControllerTest {
         displayResults = new ArrayList<>();
     }
 
-//    @Test
-//    public void testSearchFormhasErrors() {
-//        Form<Search> searchForm = Mockito.mock(Form.class);
-//        Mockito.when(searchForm.hasErrors()).thenReturn(true);
-//        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
-//
-//        Result result = searchController.search(request);
-//        assertEquals(400, result.status());
-//    }
-//
-//    @Test
-//    public void testSearchFormisNull() {
-//        Form<Search> searchForm = Mockito.mock(Form.class);
-//        Mockito.when(searchForm.hasErrors()).thenReturn(false);
-//        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
-//        Mockito.when(searchForm.get()).thenReturn(null);
-//
-//        Result result = searchController.search(request);
-//        assertEquals(OK, result.status());
-//    }
+    @Test
+    public void testSearchFormisNull() {
+        Form<Search> searchForm = Mockito.mock(Form.class);
+        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+        Mockito.when(searchForm.bindFromRequest(request)).thenReturn(null);
+
+        Result result = searchController.search(request);
+        assertEquals(400, result.status());
+    }
+
+    @Test
+    public void testSearchFormhasErrors() {
+        Form<Search> searchForm = Mockito.mock(Form.class);
+        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+        Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
+        Mockito.when(searchForm.hasErrors()).thenReturn(true);
+
+        Result result = searchController.search(request);
+        assertEquals(400, result.status());
+    }
+
+    @Test
+    public void testSearchFormKeyisNull() {
+        Form<Search> searchForm = Mockito.mock(Form.class);
+        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+        Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
+        Mockito.when(searchForm.hasErrors()).thenReturn(false);
+        Mockito.when(searchForm.get()).thenReturn(null);
+
+        Result result = searchController.search(request);
+        assertEquals(400, result.status());
+    }
 
 //    @Test
 //    public void testSearchFormisEmpty() {
 //        Search searchData = new Search();
-//        searchData.setKey("");
+//        searchData.setKey("testSearchKey");
 //
 //        Form<Search> searchForm = Mockito.mock(Form.class);
-//        Mockito.when(searchForm.hasErrors()).thenReturn(false);
+//        Form.Field mockField = Mockito.mock(Form.Field.class);
+//
 //        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+//        Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
+//        Mockito.when(searchForm.hasErrors()).thenReturn(false);
 //        Mockito.when(searchForm.get()).thenReturn(searchData);
 //
 //        Result result = searchController.search(request);
@@ -133,6 +146,53 @@ public class SearchControllerTest {
     }
 
     @Test
+    public void testProfilePageExceptionInvalidAPIKey() {
+        String channelName = "TestChannel";
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method("GET")
+                .uri("/profile?channel=" + channelName);
+
+        try{
+            Mockito.when(youTubeSearch.Search(channelName, "profile")).
+                    thenThrow(new IOException("Invalid API Key"));
+
+            Result result = searchController.profile(request.build());
+
+            String content = contentAsString(result);
+
+            assertEquals(BAD_REQUEST, result.status());
+            assertTrue("Expected Invalid API Key", content.contains("Invalid API Key"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("exception happend in tests"+e);
+        }
+    }
+
+    @Test
+    public void testTagsExceptionInvalidAPIKey() {
+        String videoId = "TestVideo";
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method("GET")
+                .uri("/tag?videoId=" + videoId);
+
+        try{
+            Mockito.when(youTubeSearch.Search(videoId, "tags")).
+                    thenThrow(new IOException("Invalid API Key"));
+
+            Result result = searchController.tags(request.build());
+
+            String content = contentAsString(result);
+
+            assertEquals(BAD_REQUEST, result.status());
+            assertTrue("Expected Invalid API Key", content.contains("Invalid API Key"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("exception happend in tests"+e);
+        }
+    }
+
+
+    @Test
     public void testTagsVideoIdandHashTagMissing() {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method("GET")
@@ -164,7 +224,6 @@ public class SearchControllerTest {
 
             String content = contentAsString(result);
 
-            // System.out.println("check here -------->>>>>>"+content);
             assertEquals(OK, result.status());
             for (YouTubeVideo video : mockVideos) {
                 assertTrue("Expected video title in the html", content.contains(video.getTitle()));
@@ -232,7 +291,7 @@ public class SearchControllerTest {
         Result result = searchController.displayStats(searchTerm);
         assertEquals(OK, result.status());
         String content = contentAsString(result);
-        // System.out.println("check here ----->" + content);
+
         String normalizedContent = content.replaceAll("\\s+", " ");
         assertTrue("The content should contain the word 'testterm' with frequency '5'", normalizedContent.contains("<td>testterm</td> <td>5</td>"));
         assertTrue("The content should contain the word 'video' with frequency '4'", normalizedContent.contains("<td>video</td> <td>4</td>"));
@@ -243,7 +302,6 @@ public class SearchControllerTest {
     @Test
     public void testDisplayStatsSearchNotFound() {
         String searchTerm = "nonExistentTerm";
-    
         Result result = searchController.displayStats(searchTerm);
         assertEquals(BAD_REQUEST, result.status());
         String content = contentAsString(result);
@@ -257,14 +315,12 @@ public class SearchControllerTest {
         searchController.displayResults.clear();
         List<YouTubeVideo> mockVideos = new ArrayList<>();
         SearchResults mockSearchResults = new SearchResults(searchTerm, mockVideos);
-        
         Result result = searchController.displayStats(searchTerm);
         assertEquals(BAD_REQUEST, result.status());
         String content = contentAsString(result);
-        System.out.println("check here ----->" + content);
         assertTrue(content.contains("No search results found for the given terms."));
     }
-    
+
     @Test
     public void testCalculateAverageFleschKincaidGradeLevel() {
         String description1 = "This is a test description. It should be long enough to calculate syllables and sentences.";
@@ -278,7 +334,7 @@ public class SearchControllerTest {
         double expectedAverage = (video1.getFleschKincaidGradeLevel() + video2.getFleschKincaidGradeLevel() + video3.getFleschKincaidGradeLevel()) / 3;
         assertEquals("The average Flesch-Kincaid Grade Level should be correct", expectedAverage, averageGradeLevel, 0.01);
     }
-    
+
     @Test
     public void testCalculateAverageFleschReadingEaseScore() {
         String description1 = "This is a test description. It should be long enough to calculate syllables and sentences.";

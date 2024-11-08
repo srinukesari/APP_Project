@@ -39,12 +39,14 @@ public class SearchController  extends Controller{
         Form<Search> searchForm = formFactory.form(Search.class).bindFromRequest(request);
         Messages messages = messagesApi.preferred(request);
 
-        if(searchForm.hasErrors()){
+        if(searchForm == null || searchForm.hasErrors()){
             return badRequest();
         }
         Search data = searchForm.get();
+        if(data == null) return badRequest();
+
         String searchKey = data.getKey();
-        if(searchKey != null && !searchKey.isEmpty()) {
+        if(!searchKey.isEmpty()) {
             // if(displayResults.size() > 0 && displayResults.get(0).getSearchTerms().trim().toLowerCase().equals(searchKey.trim().toLowerCase())){
             //     // top record is the search key no need to call api again
             // }else{
@@ -52,9 +54,6 @@ public class SearchController  extends Controller{
                 List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
 
                 try {
-                    // YouTube youtubeService = new YouTube.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance(), httpRequest -> {})
-                    // .setApplicationName("YTLyticsSyntaxSquad")
-                    // .build();
                     YTVideosList = youTubeSearch.Search(searchKey,"home");
                     List<String> videoIds = new ArrayList<>();
                     for (YouTubeVideo video : YTVideosList) {
@@ -69,12 +68,10 @@ public class SearchController  extends Controller{
                 } catch (Exception e) {
                     System.out.println("check exception==== " + e);
                 }
-                System.out.println("comes here to check111 " + searchForm + data + searchKey);
-                
+
                 double averageFleschKincaidGradeLevel = calculateAverageFleschKincaidGradeLevel(MorestatsVideosList);
                 double averageFleschReadingEaseScore = calculateAverageFleschReadingEaseScore(MorestatsVideosList);
-                // averageFleschKincaidGradeLevel = new BigDecimal(averageFleschKincaidGradeLevel).setScale(3, RoundingMode.HALF_UP).doubleValue();
-                // averageFleschReadingEaseScore = new BigDecimal(averageFleschReadingEaseScore).setScale(3, RoundingMode.HALF_UP).doubleValue();
+
                 SearchResults sr = new SearchResults(searchKey, YTVideosList);
                 SearchResults sr1 = new SearchResults(searchKey, MorestatsVideosList);
                 sr.setAverageFleschKincaidGradeLevel(averageFleschKincaidGradeLevel);
@@ -101,7 +98,7 @@ public class SearchController  extends Controller{
                 YTVideosList = YTVideosList.subList(0, 10); 
             }
         } catch (Exception e) {
-            System.out.println("check exception==== " + e);
+            return badRequest("Invalid API Key");
         }
 
         return ok(profile.render(channelName,YTVideosList));
@@ -118,19 +115,14 @@ public class SearchController  extends Controller{
         try {
             if(videoId != null){
                 YTVideosList = youTubeSearch.Search(videoId,"tags");
-                System.out.println("check the size "+YTVideosList);
                 return ok(videotags.render(videoId,YTVideosList));
             } else {
                 YTVideosList = youTubeSearch.Search(hashTag,"hashTag");
-                System.out.println("check the size "+YTVideosList);
-
                 return ok(tagsearch.render(hashTag,YTVideosList));
             }
         } catch (Exception e) {
-            System.out.println("check exception==== " + e);
+            return badRequest("Invalid API Key");
         }
-
-        return ok(videotags.render(videoId,YTVideosList));
     }
 
 
@@ -154,7 +146,6 @@ public class SearchController  extends Controller{
         for (YouTubeVideo video : videos) {
             gradeLevels.add(video.getFleschKincaidGradeLevel());
         }
-        System.out.println("Grade Levels: " + gradeLevels);
         averageFleschKincaidGradeLevel = gradeLevels.stream()
             .mapToDouble(Double::doubleValue)
             .average()
@@ -168,7 +159,6 @@ public class SearchController  extends Controller{
         for (YouTubeVideo video : videos) {
             easeScores.add(video.getFleschReadingEaseScore());
         }
-        System.out.println("Ease Scores: " + easeScores);
         averageFleschReadingEaseScore = easeScores.stream()
             .mapToDouble(Double::doubleValue)
             .average()

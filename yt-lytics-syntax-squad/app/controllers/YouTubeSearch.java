@@ -20,6 +20,18 @@ public class YouTubeSearch {
 
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
+    private YouTube youtubeService;
+
+    public YouTubeSearch(){
+        this.youtubeService =  new YouTube.Builder(new NetHttpTransport(), JSON_FACTORY, (HttpRequestInitializer) null)
+                .setApplicationName("YTLyticsSyntaxSquad")
+                .build();
+    }
+
+    public YouTubeSearch(YouTube youtubeService){
+        this.youtubeService = youtubeService;
+    }
+
     public static YouTube.Search.List getSearchRequestforProfile(YouTube youtubeService,String channelName)
             throws IOException{
         YouTube.Search.List searchChannelRequest = youtubeService.search()
@@ -86,11 +98,6 @@ public class YouTubeSearch {
         List<YouTubeVideo> videosList = new ArrayList<>();
         List<SearchResult> searchResults = new ArrayList<>();
         List<Video> videoDetails = new ArrayList<>();
-        // System.out.println("Printing for 1st time");
-
-        YouTube youtubeService = new YouTube.Builder(new NetHttpTransport(), JSON_FACTORY, (HttpRequestInitializer) null)
-                .setApplicationName("YTLyticsSyntaxSquad")
-                .build();
 
         YouTube.Search.List searchRequest = null;
         YouTube.Videos.List videoRequest = null;
