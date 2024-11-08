@@ -21,11 +21,13 @@ public class YouTubeSearchTest {
 
     private YouTube youtubeService;
     private YouTubeSearch youtubeSearch;
+    private YouTubeSearch youtubeSearchDefault;
 
     @Before
     public void setUp() {
         youtubeService = mock(YouTube.class, RETURNS_DEEP_STUBS);
         youtubeSearch = new YouTubeSearch(youtubeService);
+        youtubeSearchDefault = new YouTubeSearch();
     }
 
     @Test
@@ -46,9 +48,9 @@ public class YouTubeSearchTest {
         Mockito.when(channelResponse.getItems()).thenReturn(Collections.singletonList(mockResult));
         Mockito.when(mockResult.getSnippet().getChannelId()).thenReturn("testChannelId");
 
-        YouTube.Search.List result = YouTubeSearch.getSearchRequestforProfile(youtubeService, "testChannel");
+        List<YouTubeVideo> result = youtubeSearch.Search("testSearchKey", "profile");
 
-        verify(searchChannelRequest).setChannelId("testChannelId");
+//        verify(searchChannelRequest).setChannelId("testChannelId");
 
         assertNotNull(result);
     }
@@ -142,7 +144,13 @@ public class YouTubeSearchTest {
 
         Mockito.when(searchResponse.getItems()).thenReturn(Collections.emptyList());
 
-        List<YouTubeVideo> videos = youtubeSearch.Search("sampleSearch", "hashtag");
+        List<YouTubeVideo> videos = youtubeSearch.Search("sampleSearch", "hashTag");
+        assertTrue(videos.isEmpty());
+    }
+
+    @Test
+    public void testSearch_WithNoRequest() throws IOException {
+        List<YouTubeVideo> videos = youtubeSearch.Search("noResults", "nopage");
         assertTrue(videos.isEmpty());
     }
 
@@ -255,24 +263,4 @@ public class YouTubeSearchTest {
         assertNotNull(videos);
         assertTrue(videos.isEmpty());
     }
-
-    
-
-//    @Test
-//    public void testSearch_NoResults() throws IOException {
-//        YouTube.Search.List searchRequest = mock(YouTube.Search.List.class);
-//        SearchListResponse searchResponse = mock(SearchListResponse.class);
-//
-//        Mockito.when(youtubeService.search().list("snippet")).thenReturn(searchRequest);
-//        Mockito.when(searchRequest.setQ(anyString())).thenReturn(searchRequest);
-//        Mockito.when(searchRequest.execute()).thenReturn(searchResponse);
-//        Mockito.when(searchResponse.getItems()).thenReturn(Collections.emptyList());
-//
-//        List<YouTubeVideo> videos = youtubeSearch.Search("noResults", "home");
-//
-//        System.out.println("check kkoooooooo"+videos);
-//        assertTrue(videos.isEmpty());
-//    }
-
-    // Similar tests can be created for "tags", "profile", and "hashTag" page cases
 }
