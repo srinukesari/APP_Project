@@ -39,14 +39,14 @@ public class SearchController  extends Controller{
         Form<Search> searchForm = formFactory.form(Search.class).bindFromRequest(request);
         Messages messages = messagesApi.preferred(request);
 
-        if(searchForm.hasErrors()){
+        if(searchForm == null || searchForm.hasErrors()){
             return badRequest();
         }
         Search data = searchForm.get();
         if(data == null) return badRequest();
 
         String searchKey = data.getKey();
-        if(searchKey != null && !searchKey.isEmpty()) {
+        if(!searchKey.isEmpty()) {
             // if(displayResults.size() > 0 && displayResults.get(0).getSearchTerms().trim().toLowerCase().equals(searchKey.trim().toLowerCase())){
             //     // top record is the search key no need to call api again
             // }else{
@@ -95,7 +95,7 @@ public class SearchController  extends Controller{
         try {
             YTVideosList = youTubeSearch.Search(channelName,"profile");
         } catch (Exception e) {
-            System.out.println("check exception==== " + e);
+            return badRequest("Invalid API Key");
         }
 
         return ok(profile.render(channelName,YTVideosList));
@@ -118,10 +118,8 @@ public class SearchController  extends Controller{
                 return ok(tagsearch.render(hashTag,YTVideosList));
             }
         } catch (Exception e) {
-            System.out.println("check exception==== " + e);
+            return badRequest("Invalid API Key");
         }
-
-        return ok(videotags.render(videoId,YTVideosList));
     }
 
 
