@@ -14,8 +14,10 @@ import java.io.IOException;
 import java.util.*;
 import models.*;
 
+/* @author: Team */
 public class YouTubeSearch {
-    private static final String API_KEY = "AIzaSyATDszuEMCnKfoxdjnT9rhfvpL3ONbsYtE";
+    private static final String API_KEY = "AIzaSyD0a1-a6o2zk6koHCCA-yJ827fRfPpDP5U";
+            //"AIzaSyATDszuEMCnKfoxdjnT9rhfvpL3ONbsYtE";
             //"AIzaSyD0a1-a6o2zk6koHCCA-yJ827fRfPpDP5U";
     //"AIzaSyCUFy3WvnJYPDmrv6tA80xGw3-uzjo36bk"; // srinu's api key
 
@@ -33,6 +35,7 @@ public class YouTubeSearch {
         this.youtubeService = youtubeService;
     }
 
+    /* @author: sushmitha */
     public static YouTube.Search.List getSearchRequestforProfile(YouTube youtubeService,String channelName)
             throws IOException{
         YouTube.Search.List searchChannelRequest = youtubeService.search()
@@ -64,6 +67,7 @@ public class YouTubeSearch {
         return searchVideosRequest;
     }
 
+    /* @author: aniket */
     public static YouTube.Search.List getSearchRequestforHome(YouTube youtubeService,String searchKey)
             throws IOException{
         return youtubeService.search()
@@ -74,6 +78,7 @@ public class YouTubeSearch {
                 .setKey(API_KEY);
     }
 
+    /* @author: srinu.kesari */
     public static YouTube.Videos.List getVideoRequestforTags(YouTube youtubeService,String videoId)
             throws IOException{
         return youtubeService.videos()
@@ -83,6 +88,7 @@ public class YouTubeSearch {
                 .setKey(API_KEY);
     }
 
+    /* @author: srinu.kesari */
     public static YouTube.Search.List getSearchRequestforTags(YouTube youtubeService,String hashTag)
             throws IOException{
         return youtubeService.search()
@@ -94,7 +100,7 @@ public class YouTubeSearch {
                 .setKey(API_KEY);
     }
 
-
+    /* @author: srinu.kesari */
     public List<YouTubeVideo> Search(String search, String page) throws IOException {
         List<YouTubeVideo> videosList = new ArrayList<>();
         List<SearchResult> searchResults = new ArrayList<>();
@@ -161,6 +167,7 @@ public class YouTubeSearch {
         return videosList;
     }
 
+    /* @author: sahithi */
     public List<YouTubeVideo> fetchFullDescriptions(List<String> videoIds) throws IOException {
         List<YouTubeVideo> videosList = new ArrayList<>();
         YouTube.Videos.List videoRequest = youtubeService.videos()

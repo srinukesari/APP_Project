@@ -1,7 +1,7 @@
 @(hashTag : String)(searchResultsList: List[YouTubeVideo])
 
 @main("HashTags") {
-    <h1> HashTag is @hashTag</h1>
+    <h1> HashTag : @hashTag</h1>
     @for((video,index) <- searchResultsList.zipWithIndex) {
         <div class="video-item">
             <div class="video-details">
@@ -17,10 +17,17 @@
                 } else {
                 <a href=@video.getHtmlLinkforProfile() >@video.getChannel()</a>,
                 }
-                <strong>Description: </strong> @video.getDescription()
+                <strong>Description: </strong> @video.getDescription(),
+                @if(video.getHtmlLinkforVideoTags.isEmpty) {
+                    Tags <br>
+                }else{
+                    <a href=@video.getHtmlLinkforVideoTags >Tags</a>
+                }
             </div>
             <div class="video-thumbnail">
-                <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
+                <a href=@video.getHtmlLinkforTitle() target="_blank">
+                    <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
+                </a>
             </div>
         </div>
     }

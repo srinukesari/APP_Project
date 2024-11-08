@@ -1,15 +1,20 @@
 @(videoId : String)(videos: List[YouTubeVideo])
 
 @main("Tags") {
-    <h1> Video Id  @videoId</h1>
     @for((video) <- videos){
-        <div class="video-item">
-            <div class="video-details">
+        <div class="video-item-tagpage">
+            <div class="video-thumbnail-tagpage">
+                <a href=@video.getHtmlLinkforTitle() target="_blank">
+                    <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
+                </a>
+            </div>
+            <div class="video-details-tagpage">
                 <strong>Title: </strong> @if(video.getHtmlLinkforTitle().isEmpty) {
                     @video.getTitle(),
                 } else {
                     <a href=@video.getHtmlLinkforTitle() target="_blank">@video.getTitle()</a>,
                 }
+                <br>
                 <br>
                 <strong>Channel: </strong> @if(video.getHtmlLinkforProfile().isEmpty) {
                     @video.getChannel(),
@@ -17,30 +22,33 @@
                 <a href=@video.getHtmlLinkforProfile() >@video.getChannel()</a>,
                 }
                 <br>
-                <strong>Description: </strong> @video.getDescription() <br>
-                @if(video.getDescription().length() > 100) {
-                    <span class="short-description">@video.getDescription().substring(0, 100)</span>
+                <br>
+                <strong>Description: </strong>
+                @if(video.getDescription().length() > 400) {
+                    <span class="short-description">@video.getDescription().substring(0, 400)</span>
                     <span class="dots">...</span>
-                    <span class="full-description" style="display: none;">@video.getDescription().substring(100)</span>
+                    <span class="full-description" style="display: none;">@video.getDescription().substring(400)</span>
                     <a href="javascript:void(0);" class="toggle-button" onclick="toggleDescription(this)">Show more</a>
                 } else {
                     <span>@video.getDescription()</span>
                 }
                 <br>
-                @for((tag) <- video.getTags()){
-                    <strong> 
-                        @if(video.getHtmlLinkforTagSearch(tag).isEmpty) {
-                            Tags <br>
-                        }else{
-                            <a href=@video.getHtmlLinkforTagSearch(tag)>@tag</a> 
-                        }
 
-                    </strong>,
-                }
             </div>
-            <div class="video-thumbnail">
-                <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
-            </div>
+
+        </div>
+        <div class="tag-list-tagpage">
+            <strong>#Tags:</strong>
+            @for((tag) <- video.getTags()){
+                <strong>
+                    @if(video.getHtmlLinkforTagSearch(tag).isEmpty) {
+                        Tags <br>
+                    }else{
+                        <a href=@video.getHtmlLinkforTagSearch(tag)>@tag</a>
+                    }
+
+                </strong>,
+            }
         </div>
     }
     <script>

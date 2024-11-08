@@ -1,5 +1,6 @@
 package models;
 
+/* @author: team */
 public class Search {
     private String key;
 

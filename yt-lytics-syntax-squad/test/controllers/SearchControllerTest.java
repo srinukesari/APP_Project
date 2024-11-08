@@ -55,6 +55,7 @@ public class SearchControllerTest {
         displayResults = new ArrayList<>();
     }
 
+    /* @author: author */
     @Test
     public void testSearchFormisNull() {
         Form<Search> searchForm = Mockito.mock(Form.class);
@@ -134,6 +135,7 @@ public class SearchControllerTest {
 //        }
 //    }
 
+    /* @author: sushmitha */
     @Test
     public void testProfileChannelNameMissing() {
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -244,6 +246,7 @@ public class SearchControllerTest {
         }
     }
 
+    /* @author: srinu.kesari */
     @Test
     public void testTagsExceptionInvalidAPIKey() {
         String videoId = "TestVideo";
@@ -348,6 +351,7 @@ public class SearchControllerTest {
         }
     }
 
+    /* @author: sahithi */
     @Test
     public void testDisplayStatsSearchFound() {
         String searchTerm = "testTerm";
