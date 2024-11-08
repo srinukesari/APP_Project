@@ -146,6 +146,118 @@ public class YouTubeSearchTest {
         assertTrue(videos.isEmpty());
     }
 
+    @Test
+    public void testSearch_TagsPage() throws IOException {
+        YouTube.Videos.List videoRequest = mock(YouTube.Videos.List.class);
+        VideoListResponse videoResponse = mock(VideoListResponse.class);
+        Mockito.when(youtubeService.videos().list("snippet")).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setId(anyString())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setMaxResults(anyLong())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setKey(anyString())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.execute()).thenReturn(videoResponse);
+        Video mockVideo = mock(Video.class);
+        VideoSnippet mockSnippet = mock(VideoSnippet.class);
+        Mockito.when(mockVideo.getSnippet()).thenReturn(mockSnippet);
+        Mockito.when(mockSnippet.getTitle()).thenReturn("Test Video Title");
+        Mockito.when(mockSnippet.getChannelTitle()).thenReturn("Test Channel");
+        Mockito.when(mockSnippet.getDescription()).thenReturn("Test Description");
+        Mockito.when(mockSnippet.getTags()).thenReturn(Collections.singletonList("Test Tag"));
+        
+        ThumbnailDetails mockThumbnailDetails = mock(ThumbnailDetails.class);
+        Thumbnail mockThumbnail = mock(Thumbnail.class);
+        Mockito.when(mockThumbnailDetails.getDefault()).thenReturn(mockThumbnail);
+        Mockito.when(mockThumbnail.getUrl()).thenReturn("http://example.com/thumbnail.jpg");
+        Mockito.when(mockSnippet.getThumbnails()).thenReturn(mockThumbnailDetails);
+
+        Mockito.when(videoResponse.getItems()).thenReturn(Collections.singletonList(mockVideo));
+
+        List<YouTubeVideo> videos = youtubeSearch.Search("testTag", "tags");
+
+        assertNotNull(videos);
+        assertEquals(1, videos.size());
+        
+        YouTubeVideo youtubeVideo = videos.get(0);
+        assertEquals("Test Video Title", youtubeVideo.getTitle());
+        assertEquals("Test Channel", youtubeVideo.getChannel());
+        assertEquals("Test Description", youtubeVideo.getDescription());
+        assertEquals("Test Tag", youtubeVideo.getTags().get(0));
+        assertEquals("http://example.com/thumbnail.jpg", youtubeVideo.getThumbnailUrl());
+    }
+
+    @Test
+    public void testSearch_TagsPage_EmptyResult() throws IOException {
+        YouTube.Videos.List videoRequest = mock(YouTube.Videos.List.class);
+        VideoListResponse videoResponse = mock(VideoListResponse.class);
+        Mockito.when(youtubeService.videos().list("snippet")).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setId(anyString())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setMaxResults(anyLong())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setKey(anyString())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.execute()).thenReturn(videoResponse);
+
+        Mockito.when(videoResponse.getItems()).thenReturn(Collections.emptyList());
+
+        List<YouTubeVideo> videos = youtubeSearch.Search("nonExistentTag", "tags");
+
+        assertNotNull(videos); 
+        assertTrue(videos.isEmpty()); 
+    }
+
+    @Test
+    public void testFetchFullDescriptions_SingleVideo() throws IOException {
+        List<String> videoIds = Collections.singletonList("testVideoId");
+
+        YouTube.Videos.List videoRequest = mock(YouTube.Videos.List.class);
+        VideoListResponse videoResponse = mock(VideoListResponse.class);
+
+        Mockito.when(youtubeService.videos().list("snippet")).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setId(anyString())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setKey(anyString())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.execute()).thenReturn(videoResponse);
+
+        Video mockVideo = mock(Video.class);
+        VideoSnippet mockSnippet = mock(VideoSnippet.class); 
+
+        Mockito.when(mockVideo.getSnippet()).thenReturn(mockSnippet);
+        Mockito.when(mockSnippet.getTitle()).thenReturn("Test Video Title");
+        Mockito.when(mockSnippet.getChannelTitle()).thenReturn("Test Channel");  
+        Mockito.when(mockSnippet.getDescription()).thenReturn("Test Description");
+        ThumbnailDetails mockThumbnailDetails = mock(ThumbnailDetails.class);
+        Thumbnail mockThumbnail = mock(Thumbnail.class);
+        Mockito.when(mockThumbnailDetails.getDefault()).thenReturn(mockThumbnail);
+        Mockito.when(mockThumbnail.getUrl()).thenReturn("http://example.com/thumbnail.jpg");
+        Mockito.when(mockSnippet.getThumbnails()).thenReturn(mockThumbnailDetails);
+        Mockito.when(mockSnippet.getTags()).thenReturn(Collections.singletonList("Test Tag"));
+        Mockito.when(videoResponse.getItems()).thenReturn(Collections.singletonList(mockVideo));
+
+        List<YouTubeVideo> videos = youtubeSearch.fetchFullDescriptions(videoIds);
+
+        assertNotNull(videos);
+        assertEquals(1, videos.size());
+        YouTubeVideo youtubeVideo = videos.get(0);
+        assertEquals("Test Video Title", youtubeVideo.getTitle());
+        assertEquals("Test Channel", youtubeVideo.getChannel());
+        assertEquals("Test Description", youtubeVideo.getDescription());
+        assertEquals("Test Tag", youtubeVideo.getTags().get(0));
+        assertEquals("http://example.com/thumbnail.jpg", youtubeVideo.getThumbnailUrl());  
+    }
+    
+    @Test
+    public void testFetchFullDescriptions_NoVideosFound() throws IOException {
+        List<String> videoIds = Collections.singletonList("nonExistentVideoId");
+        YouTube.Videos.List videoRequest = mock(YouTube.Videos.List.class);
+        VideoListResponse videoResponse = mock(VideoListResponse.class);
+        Mockito.when(youtubeService.videos().list("snippet")).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setId(anyString())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.setKey(anyString())).thenReturn(videoRequest);
+        Mockito.when(videoRequest.execute()).thenReturn(videoResponse);
+        Mockito.when(videoResponse.getItems()).thenReturn(Collections.emptyList());
+        List<YouTubeVideo> videos = youtubeSearch.fetchFullDescriptions(videoIds);
+        assertNotNull(videos);
+        assertTrue(videos.isEmpty());
+    }
+
+    
+
 //    @Test
 //    public void testSearch_NoResults() throws IOException {
 //        YouTube.Search.List searchRequest = mock(YouTube.Search.List.class);
