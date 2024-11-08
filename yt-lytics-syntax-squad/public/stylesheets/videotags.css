@@ -1,0 +1,81 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    color: #222;
+    font-size: 2em;
+    padding: 20px;
+    background-color: #e9ecef;
+    margin-bottom: 20px;
+}
+
+/* Container for each video item */
+.video-item {
+    display: flex;
+    align-items: flex-start;
+    margin: 15px auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-width: 800px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Thumbnail styling */
+.video-thumbnail img {
+    width: 120px;
+    height: auto;
+    border-radius: 8px;
+    margin-right: 20px;
+}
+
+/* Details section */
+.video-details {
+    flex: 1;
+}
+
+/* Title styling */
+.video-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 0 0 10px;
+}
+
+.video-title a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.video-title a:hover {
+    text-decoration: underline;
+}
+
+/* Description styling */
+.video-description {
+    font-size: 0.95em;
+    margin: 5px 0 10px;
+    color: #555;
+}
+
+/* Tag styling */
+.video-tags {
+    color: #888;
+    font-size: 0.9em;
+}
+
+/* Link styling */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}

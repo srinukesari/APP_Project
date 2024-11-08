@@ -1,0 +1,87 @@
+body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Main video container */
+        .video-item {
+            max-width: 800px;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        /* Thumbnail styling */
+        .video-thumbnail {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Title styling */
+        .video-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 10px;
+        }
+
+        /* Channel info styling */
+        .video-channel {
+            font-size: 1em;
+            color: #555;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        /* Description styling */
+        .video-description {
+            font-size: 1em;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-line;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+
+        /* Tags styling */
+        .video-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .video-tags a {
+            background-color: #e0f2f1;
+            color: #00796b;
+            font-size: 0.9em;
+            padding: 6px 12px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
+        .video-tags a:hover {
+            background-color: #b2dfdb;
+            color: #004d40;
+        }

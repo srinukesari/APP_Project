@@ -1,25 +1,32 @@
 @(videoId : String)(videos: List[YouTubeVideo])
 
 @main("Tags") {
-    <h1> Video Id is @videoId</h1>
+    <h1> Video Id  @videoId</h1>
     @for((video) <- videos){
         <div class="video-item">
             <div class="video-details">
-                <strong>Title: </strong> 
-                @if(video.getHtmlLinkforTitle().isEmpty) {
+                <strong>Title: </strong> @if(video.getHtmlLinkforTitle().isEmpty) {
                     @video.getTitle(),
                 } else {
                     <a href=@video.getHtmlLinkforTitle() target="_blank">@video.getTitle()</a>,
                 }
                 <br>
-                <strong>Channel: </strong>
-                @if(video.getHtmlLinkforProfile().isEmpty) {
+                <strong>Channel: </strong> @if(video.getHtmlLinkforProfile().isEmpty) {
                     @video.getChannel(),
                 } else {
                 <a href=@video.getHtmlLinkforProfile() >@video.getChannel()</a>,
                 }
                 <br>
                 <strong>Description: </strong> @video.getDescription() <br>
+                @if(video.getDescription().length() > 100) {
+                    <span class="short-description">@video.getDescription().substring(0, 100)</span>
+                    <span class="dots">...</span>
+                    <span class="full-description" style="display: none;">@video.getDescription().substring(100)</span>
+                    <a href="javascript:void(0);" class="toggle-button" onclick="toggleDescription(this)">Show more</a>
+                } else {
+                    <span>@video.getDescription()</span>
+                }
+                <br>
                 @for((tag) <- video.getTags()){
                     <strong> 
                         @if(video.getHtmlLinkforTagSearch(tag).isEmpty) {
@@ -27,6 +34,7 @@
                         }else{
                             <a href=@video.getHtmlLinkforTagSearch(tag)>@tag</a> 
                         }
+
                     </strong>,
                 }
             </div>
@@ -35,4 +43,37 @@
             </div>
         </div>
     }
+    <script>
+        function toggleDescription(element) {
+            var shortDescription = element.previousElementSibling.previousElementSibling.previousElementSibling;
+            var dots = element.previousElementSibling.previousElementSibling;
+            var fullDescription = element.previousElementSibling;
+            
+            if (fullDescription.style.display === "none") {
+                shortDescription.style.display = "none";
+                dots.style.display = "none";
+                fullDescription.style.display = "inline";
+                element.innerHTML = "Show less";
+            } else {
+                shortDescription.style.display = "inline";
+                dots.style.display = "inline";
+                fullDescription.style.display = "none";
+                element.innerHTML = "Show more";
+            }
+        }
+    </script>
+
+    <style>
+        .toggle-button {
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .video-item {
+            margin-bottom: 20px;
+        }
+        .video-thumbnail {
+            margin-top: 10px;
+        }
+    </style>
 }

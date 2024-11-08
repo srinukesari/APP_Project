@@ -1,26 +1,35 @@
 @(channelName : String)(searchResultsList: List[YouTubeVideo])
 
 @main("Profile") {
-<h1> channel name is @channelName</h1>
+<h1>Channel name is @channelName</h1>
     @for((video,index) <- searchResultsList.zipWithIndex) {
         <div class="video-item">
+            
             <div class="video-details">
-                @(index+1). <strong>Title: </strong> 
-                @if(video.getHtmlLinkforTitle().isEmpty) {
-                    @video.getTitle(),
-                } else {
-                    <a href=@video.getHtmlLinkforTitle() target="_blank">@video.getTitle()</a>,
-                }
-                <strong>Description: </strong> @video.getDescription()
-                @if(video.getHtmlLinkforVideoTags.isEmpty) {
-                    Tags <br>
-                }else{
-                    <a href=@video.getHtmlLinkforVideoTags target="_blank">Tags</a>
-                }
+                <div class="title">
+                    @(index+1). <strong>Title: </strong> @if(video.getHtmlLinkforTitle().isEmpty) {
+                        @video.getTitle(),
+                    } else {
+                        <a href=@video.getHtmlLinkforTitle() target="_blank">@video.getTitle()</a>,
+                    }
+    
+                </div>,
+                <div class="description-box">
+                    <strong>Description: </strong>
+                    <span class="full-description">@video.getDescription()</span>
+                    <div class="tags">
+                        @if(video.getHtmlLinkforVideoTags.isEmpty) {
+                            Tags <br>
+                        }else{
+                            <a href=@video.getHtmlLinkforVideoTags target="_blank">Tags</a>
+                        }
+        
+                    </div>
             </div>
             <div class="video-thumbnail">
                 <img src="@video.getThumbnailUrl()" alt="Thumbnail" />
             </div>
         </div>
     }
+        
 }
