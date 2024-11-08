@@ -14,8 +14,8 @@ import play.i18n.Messages;
 
 import play.i18n.MessagesApi;
 import javax.inject.Inject;
-import java.text.DecimalFormat;
-import com.google.gson.Gson;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class SearchController  extends Controller{
 
@@ -25,6 +25,8 @@ public class SearchController  extends Controller{
 
     public List<SearchResults> displayResults = new ArrayList<>();
     public List<SearchResults> morestatsResults = new ArrayList<>();
+    private double averageFleschKincaidGradeLevel;
+    private double averageFleschReadingEaseScore;
 
     @Inject
     public SearchController(FormFactory formFactory, MessagesApi messagesApi,YouTubeSearch youTubeSearch) {
@@ -50,8 +52,17 @@ public class SearchController  extends Controller{
                 List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
 
                 try {
+                    // YouTube youtubeService = new YouTube.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance(), httpRequest -> {})
+                    // .setApplicationName("YTLyticsSyntaxSquad")
+                    // .build();
                     YTVideosList = youTubeSearch.Search(searchKey,"home");
-                    MorestatsVideosList = youTubeSearch.Search(searchKey,"home");
+                    List<String> videoIds = new ArrayList<>();
+                    for (YouTubeVideo video : YTVideosList) {
+                        videoIds.add(video.getVideoId());
+                    }
+                    YTVideosList = youTubeSearch.fetchFullDescriptions(videoIds);
+                    MorestatsVideosList.addAll(YTVideosList);
+
                     if (YTVideosList.size() > 10) {
                         YTVideosList = YTVideosList.subList(0, 10); 
                     }
@@ -59,8 +70,15 @@ public class SearchController  extends Controller{
                     System.out.println("check exception==== " + e);
                 }
                 System.out.println("comes here to check111 " + searchForm + data + searchKey);
+                
+                double averageFleschKincaidGradeLevel = calculateAverageFleschKincaidGradeLevel(MorestatsVideosList);
+                double averageFleschReadingEaseScore = calculateAverageFleschReadingEaseScore(MorestatsVideosList);
+                // averageFleschKincaidGradeLevel = new BigDecimal(averageFleschKincaidGradeLevel).setScale(3, RoundingMode.HALF_UP).doubleValue();
+                // averageFleschReadingEaseScore = new BigDecimal(averageFleschReadingEaseScore).setScale(3, RoundingMode.HALF_UP).doubleValue();
                 SearchResults sr = new SearchResults(searchKey, YTVideosList);
                 SearchResults sr1 = new SearchResults(searchKey, MorestatsVideosList);
+                sr.setAverageFleschKincaidGradeLevel(averageFleschKincaidGradeLevel);
+                sr.setAverageFleschReadingEaseScore(averageFleschReadingEaseScore);
                 displayResults.add(0, sr);
                 morestatsResults.add(0, sr1);
             // }
@@ -127,6 +145,33 @@ public class SearchController  extends Controller{
         } else {
             return badRequest("No search results found for the given terms.");
         }
+    }
+    public double calculateAverageFleschKincaidGradeLevel(List<YouTubeVideo> videos) {
+        List<Double> gradeLevels = new ArrayList<>();
+        for (YouTubeVideo video : videos) {
+            gradeLevels.add(video.getFleschKincaidGradeLevel());
+        }
+        System.out.println("Grade Levels: " + gradeLevels);
+        averageFleschKincaidGradeLevel = gradeLevels.stream()
+            .mapToDouble(Double::doubleValue)
+            .average()
+            .orElse(0.0);
+        averageFleschKincaidGradeLevel = new BigDecimal(averageFleschKincaidGradeLevel).setScale(3, RoundingMode.HALF_UP).doubleValue();
+        return averageFleschKincaidGradeLevel;
+    }
+
+    public double calculateAverageFleschReadingEaseScore(List<YouTubeVideo> videos) {
+        List<Double> easeScores = new ArrayList<>();
+        for (YouTubeVideo video : videos) {
+            easeScores.add(video.getFleschReadingEaseScore());
+        }
+        System.out.println("Ease Scores: " + easeScores);
+        averageFleschReadingEaseScore = easeScores.stream()
+            .mapToDouble(Double::doubleValue)
+            .average()
+            .orElse(0.0);
+        averageFleschReadingEaseScore = new BigDecimal(averageFleschReadingEaseScore).setScale(3, RoundingMode.HALF_UP).doubleValue();
+        return averageFleschReadingEaseScore;
     }
     
 }

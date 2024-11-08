@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.mockito.Mock;
 import org.mockito.InjectMocks;
@@ -241,10 +243,7 @@ public class SearchControllerTest {
     @Test
     public void testDisplayStatsSearchNotFound() {
         String searchTerm = "nonExistentTerm";
-        // Http.RequestBuilder request = Helpers.fakeRequest()
-        //         .method("GET")
-        //         .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
-
+    
         Result result = searchController.displayStats(searchTerm);
         assertEquals(BAD_REQUEST, result.status());
         String content = contentAsString(result);
@@ -258,9 +257,7 @@ public class SearchControllerTest {
         searchController.displayResults.clear();
         List<YouTubeVideo> mockVideos = new ArrayList<>();
         SearchResults mockSearchResults = new SearchResults(searchTerm, mockVideos);
-        // Http.RequestBuilder request = Helpers.fakeRequest()
-        //         .method("GET")
-        //         .uri("/ytlytics/morestats?searchTerms=" + searchTerm);
+        
         Result result = searchController.displayStats(searchTerm);
         assertEquals(BAD_REQUEST, result.status());
         String content = contentAsString(result);
@@ -268,4 +265,31 @@ public class SearchControllerTest {
         assertTrue(content.contains("No search results found for the given terms."));
     }
     
+    @Test
+    public void testCalculateAverageFleschKincaidGradeLevel() {
+        String description1 = "This is a test description. It should be long enough to calculate syllables and sentences.";
+        YouTubeVideo video1 = new YouTubeVideo("Id1", "Video 1", "channel1", description1, "thumbnail1", Arrays.asList("tag1", "tag2"));
+        String description2 = "This is another test description, providing more content for the Flesch-Kincaid calculation.";
+        YouTubeVideo video2 = new YouTubeVideo("Id2", "Video 2", "channel2", description2, "thumbnail2", Arrays.asList("tag3", "tag4"));
+        String description3 = "Short description.";
+        YouTubeVideo video3 = new YouTubeVideo("Id3", "Video 3", "channel3", description3, "thumbnail3", Arrays.asList("tag5", "tag6"));
+        List<YouTubeVideo> videos = Arrays.asList(video1, video2, video3);
+        double averageGradeLevel = searchController.calculateAverageFleschKincaidGradeLevel(videos);
+        double expectedAverage = (video1.getFleschKincaidGradeLevel() + video2.getFleschKincaidGradeLevel() + video3.getFleschKincaidGradeLevel()) / 3;
+        assertEquals("The average Flesch-Kincaid Grade Level should be correct", expectedAverage, averageGradeLevel, 0.01);
+    }
+    
+    @Test
+    public void testCalculateAverageFleschReadingEaseScore() {
+        String description1 = "This is a test description. It should be long enough to calculate syllables and sentences.";
+        YouTubeVideo video1 = new YouTubeVideo("Id1", "Video 1", "channel1", description1, "thumbnail1", Arrays.asList("tag1", "tag2"));
+        String description2 = "This is another test description, providing more content for the Flesch-Kincaid calculation.";
+        YouTubeVideo video2 = new YouTubeVideo("Id2", "Video 2", "channel2", description2, "thumbnail2", Arrays.asList("tag3", "tag4"));
+        String description3 = "Short description.";
+        YouTubeVideo video3 = new YouTubeVideo("Id3", "Video 3", "channel3", description3, "thumbnail3", Arrays.asList("tag5", "tag6"));
+        List<YouTubeVideo> videos = Arrays.asList(video1, video2, video3);
+        double averageEaseScore = searchController.calculateAverageFleschReadingEaseScore(videos);
+        double expectedAverage = (video1.getFleschReadingEaseScore() + video2.getFleschReadingEaseScore() + video3.getFleschReadingEaseScore()) / 3;
+        assertEquals("The average Flesch-Kincaid Grade Level should be correct", expectedAverage, averageEaseScore, 0.01);
+    }
 }

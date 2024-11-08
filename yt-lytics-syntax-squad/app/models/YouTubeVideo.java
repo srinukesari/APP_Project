@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class YouTubeVideo{
+    private static final int DESCRIPTION_PREVIEW_LENGTH = 100;
     private String videoId;
     private String title;
     private String description;
@@ -104,6 +105,7 @@ public class YouTubeVideo{
             fleschKincaidGradeLevel = 0.0;
             return;
         }
+        // System.out.println("Description : " +description);
         int totalWords = countWords(description);
         int totalSentences = countSentences(description);
         int totalSyllables = countSyllables(description);
