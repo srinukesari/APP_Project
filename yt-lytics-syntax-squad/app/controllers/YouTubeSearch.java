@@ -49,12 +49,12 @@ public class YouTubeSearch {
         List<SearchResult> searchResultList = channelResponse.getItems();
 
         if (searchResultList.isEmpty()) {
-            System.out.println("No channels found for: " + channelName);
+//            System.out.println("No channels found for: " + channelName);
             return null;
         }
 
         String channelId = searchResultList.get(0).getSnippet().getChannelId();
-        System.out.println("Found channel ID: " + channelId);
+//        System.out.println("Found channel ID: " + channelId);
 
         YouTube.Search.List searchVideosRequest = youtubeService.search()
                 .list("snippet")
@@ -125,7 +125,7 @@ public class YouTubeSearch {
         else if(searchRequest != null) {
             SearchListResponse searchResponse = searchRequest.execute();
             searchResults = searchResponse.getItems();
-            System.out.println("result is here "+searchResults.size());
+//            System.out.println("result is here "+searchResults.size());
         } else if (videoRequest != null) {
             VideoListResponse videoResponse = videoRequest.execute();
             videoDetails = videoResponse.getItems();

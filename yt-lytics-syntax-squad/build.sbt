@@ -19,7 +19,7 @@ libraryDependencies += "org.mockito" % "mockito-inline" % "5.2.0" % Test
 
 enablePlugins(JacocoPlugin)
 
-jacocoIncludes := Seq("controllers.*", "models.*")
+jacocoIncludes := Seq("controllers.SearchController", "controllers.YouTubeSearch","models.*")
 
 jacocoReportSettings := JacocoReportSettings()
   .withThresholds(

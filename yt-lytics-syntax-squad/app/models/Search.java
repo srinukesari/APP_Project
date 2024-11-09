@@ -4,7 +4,8 @@ package models;
 public class Search {
     private String key;
 
-    public String getKey() {
+    public String getKey(){
+        if(key == null) return "";
         return this.key;
     }
 
