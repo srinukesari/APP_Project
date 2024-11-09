@@ -38,25 +38,23 @@ public class SearchController  extends Controller{
 
     /* @author: aniket */
     public Result search(Http.Request request){
-        Form<Search> searchForm = formFactory.form(Search.class).bindFromRequest(request);
-        Messages messages = messagesApi.preferred(request);
+        try {
+            Form<Search> searchForm = formFactory.form(Search.class).bindFromRequest(request);
+            Messages messages = messagesApi.preferred(request);
 
-        if(searchForm == null || searchForm.hasErrors()){
-            return badRequest();
-        }
-        Search data = searchForm.get();
-        if(data == null) return badRequest();
+            if (searchForm == null || searchForm.hasErrors()) {
+                return badRequest();
+            }
+            Search data = searchForm.get();
+            if (data == null) return badRequest();
 
-        String searchKey = data.getKey();
-        if(searchKey != null && !searchKey.isEmpty()) {
-            // if(displayResults.size() > 0 && displayResults.get(0).getSearchTerms().trim().toLowerCase().equals(searchKey.trim().toLowerCase())){
-            //     // top record is the search key no need to call api again
-            // }else{
+            String searchKey = data.getKey();
+            if (searchKey != "") {
                 List<YouTubeVideo> YTVideosList = new ArrayList<>();
                 List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
 
                 try {
-                    YTVideosList = youTubeSearch.Search(searchKey,"home");
+                    YTVideosList = youTubeSearch.Search(searchKey, "home");
                     List<String> videoIds = new ArrayList<>();
                     for (YouTubeVideo video : YTVideosList) {
                         videoIds.add(video.getVideoId());
@@ -65,10 +63,11 @@ public class SearchController  extends Controller{
                     MorestatsVideosList.addAll(YTVideosList);
 
                     if (YTVideosList.size() > 10) {
-                        YTVideosList = YTVideosList.subList(0, 10); 
+                        YTVideosList = YTVideosList.subList(0, 10);
                     }
                 } catch (Exception e) {
                     System.out.println("check exception==== " + e);
+                    return badRequest("Exception occured from YoutubeApi");
                 }
 
                 double averageFleschKincaidGradeLevel = calculateAverageFleschKincaidGradeLevel(MorestatsVideosList);
@@ -80,11 +79,13 @@ public class SearchController  extends Controller{
                 sr.setAverageFleschReadingEaseScore(averageFleschReadingEaseScore);
                 displayResults.add(0, sr);
                 morestatsResults.add(0, sr1);
-            // }
+            }
+            Form<Search> newSearchForm = formFactory.form(Search.class);
+            return ok(search.render(newSearchForm, displayResults, messages));
+        }catch (Exception e){
+            System.out.println("check here -=------>"+e);
+            return badRequest("Exception occured");
         }
-        Search emptySearch = new Search();
-        emptySearch.setKey("");
-        return ok(search.render(searchForm.fill(emptySearch), displayResults, messages));
 
     }
 

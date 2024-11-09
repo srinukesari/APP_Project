@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.mockito.Mock;
 import org.mockito.InjectMocks;
@@ -41,6 +42,9 @@ public class SearchControllerTest {
     @Mock
     private MessagesApi messagesApi;
 
+    @Mock
+    private Messages messages;
+
     @InjectMocks
     private SearchController searchController;
 
@@ -55,7 +59,7 @@ public class SearchControllerTest {
         displayResults = new ArrayList<>();
     }
 
-    /* @author: author */
+    /* @author: Aniket */
     @Test
     public void testSearchFormisNull() {
         Form<Search> searchForm = Mockito.mock(Form.class);
@@ -89,51 +93,144 @@ public class SearchControllerTest {
         assertEquals(400, result.status());
     }
 
-    // check it again important
-//    @Test
-//    public void testSearchFormisEmpty() {
-//
-//        Search searchData = new Search();
-//        searchData.setKey("testSearchKey");
-//
-//        Form<Search> searchForm = Mockito.mock(Form.class);
-//        Form.Field mockField = Mockito.mock(Form.Field.class);
-//
-//        FormFactory formFactory = Mockito.mock(FormFactory.class);
-//        MessagesApi messagesApi = Mockito.mock(MessagesApi.class);
-//        Messages messages = Mockito.mock(Messages.class);
-//
-//
-//        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
-//        Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
-//        Mockito.when(searchForm.hasErrors()).thenReturn(false);
-//        Mockito.when(searchForm.get()).thenReturn(searchData);
-//
-//
-//        List<YouTubeVideo> mockVideos = new ArrayList<>();
-//        mockVideos.add(new YouTubeVideo("Id1", "title1", "Channel1", "description1", "thumbnail1", null));
-//        mockVideos.add(new YouTubeVideo("Id2", "title2", "Channel2", "description2", "thumbnail2", null));
-//
-//        try{
-//            Mockito.when(youTubeSearch.Search("testSearchKey", "home")).thenReturn(mockVideos);
-//            Mockito.when(youTubeSearch.fetchFullDescriptions(ArgumentMatchers.anyList())).thenReturn(mockVideos);
-//
-//            Result result = searchController.search(request);
-//
-//            String content = contentAsString(result);
-//
-//            assertEquals(400, result.status());
-//
-////            for (YouTubeVideo video : mockVideos) {
-////                assertTrue("Expected video title in the html", content.contains(video.getTitle()));
-////                assertTrue("Expected description in the html", content.contains(video.getDescription()));
-////            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-////            fail("IOException thrown: " + e.getMessage());
-//            assertTrue(true);
-//        }
-//    }
+    @Test
+    public void testSearchFormhasYoutubeApiException() {
+
+        Search searchData = new Search();
+        searchData.setKey("testSearchKey");
+
+        Form<Search> searchForm = Mockito.mock(Form.class);
+
+        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+
+        Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
+        Mockito.when(searchForm.hasErrors()).thenReturn(false);
+        Mockito.when(searchForm.get()).thenReturn(searchData);
+        Mockito.when(messagesApi.preferred(request)).thenReturn(messages);
+
+        try{
+            Mockito.when(youTubeSearch.Search("testSearchKey", "home")).
+                    thenThrow(new IOException("Invalid API Key"));
+            Result result = searchController.search(request);
+
+            String content = contentAsString(result);
+
+            assertEquals(400, result.status());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /* srinu.kesari */
+    @Test
+    public void testSearchFormhasMoreVideoswithException() {
+
+        Search searchData = new Search();
+        searchData.setKey("testSearchKey");
+
+        Form<Search> searchForm = Mockito.mock(Form.class);
+
+        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+
+        Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
+        Mockito.when(searchForm.hasErrors()).thenReturn(false);
+        Mockito.when(searchForm.get()).thenReturn(searchData);
+        Mockito.when(messagesApi.preferred(request)).thenReturn(messages);
+
+
+        List<YouTubeVideo> mockVideos = new ArrayList<>();
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+
+        try{
+            Mockito.when(youTubeSearch.Search("testSearchKey", "home")).thenReturn(mockVideos);
+            Mockito.when(youTubeSearch.fetchFullDescriptions(ArgumentMatchers.anyList())).thenReturn(mockVideos);
+
+            Result result = searchController.search(request);
+
+            String content = contentAsString(result);
+
+            assertEquals(400, result.status());
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("IOException thrown: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testSearchFormhasNoDescriptionwithException() {
+
+        Search searchData = new Search();
+        searchData.setKey("testSearchKey");
+
+        Form<Search> searchForm = Mockito.mock(Form.class);
+
+        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+        Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
+
+        Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
+        Mockito.when(searchForm.hasErrors()).thenReturn(false);
+        Mockito.when(searchForm.get()).thenReturn(searchData);
+        Mockito.when(messagesApi.preferred(request)).thenReturn(messages);
+
+
+        List<YouTubeVideo> mockVideos = new ArrayList<>();
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "    ", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "shorts.", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel",
+                "THIS DESCRIPTION IS GREATER THAN 50 LENGTH,SO TYPING BLAW BLAW BLAW BLAW BLAW BLACK SHEEP BLAW SHEEP",
+                "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
+        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
+        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
+
+        try{
+            Mockito.when(youTubeSearch.Search("testSearchKey", "home")).thenReturn(mockVideos);
+            Mockito.when(youTubeSearch.fetchFullDescriptions(ArgumentMatchers.anyList())).thenReturn(mockVideos);
+
+            Form.Field mockField = Mockito.mock(Form.Field.class);
+
+            Mockito.when(searchForm.field("key")).thenReturn(mockField);
+            Mockito.when(mockField.name()).thenReturn(Optional.of("key"));
+            Mockito.when(mockField.value()).thenReturn(Optional.of("testSearchKey"));
+
+            Result result = searchController.search(request);
+
+            String content = contentAsString(result);
+
+            assertEquals(400, result.status());
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("IOException thrown: " + e.getMessage());
+        }
+    }
+
 
     /* @author: sushmitha */
     @Test

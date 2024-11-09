@@ -43,12 +43,6 @@ public class YouTubeVideo{
         return description;
     }
 
-    public String getShortDescription(){
-        if(description.length() > 50)
-            return description.substring(0,50)+"...";
-        return description;
-    }
-
     public String getThumbnailUrl() {
         return thumbnailUrl;  
     }
@@ -63,48 +57,23 @@ public class YouTubeVideo{
     public List<String> getTags(){ return tags;}
 
     public String getHtmlLinkforTitle(){
-        try {
-            String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
-            return videoUrl;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
+        String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
+        return videoUrl;
     }
 
     public String getHtmlLinkforProfile(){
-        try {
-            String htmlLink = String.format("/ytlytics/profile?channel=%s",
-                    URLEncoder.encode(channel, StandardCharsets.UTF_8.toString()));
-            return htmlLink;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
+        String htmlLink = "/ytlytics/profile?channel="+channel;
+        return htmlLink;
     }
 
     public String getHtmlLinkforVideoTags(){
-        try {
-            String htmlLink = String.format("/ytlytics/tags?videoId=%s",
-                    URLEncoder.encode(videoId, StandardCharsets.UTF_8.toString()));
-            return htmlLink;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
+        String htmlLink = "/ytlytics/tags?videoId=" + videoId;
+        return htmlLink;
     }
 
     public String getHtmlLinkforTagSearch(String tag){
-        try{
-            String htmlLink = String.format("/ytlytics/tags?hashTag=%s",
-                    URLEncoder.encode(tag, StandardCharsets.UTF_8.toString()),
-                    tag);
-            return htmlLink;
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("check here ---> "+ e);
-            return "";
-        }
+        String htmlLink = "/ytlytics/tags?hashTag=" + tag;
+        return htmlLink;
     }
     private void calculateReadabilityScores() {
         if (description == null || description.isEmpty()) {
@@ -138,9 +107,6 @@ public class YouTubeVideo{
     }
 
     private int countWords(String text) {
-        if (text == null || text.isEmpty()) {
-            return 0;
-        }
         String cleanedText = text.replaceAll("[\".,?()/:!'|]", " ");
 
         cleanedText = cleanedText.trim();
@@ -149,19 +115,12 @@ public class YouTubeVideo{
     }
 
     private int countSentences(String text) {
-        if (text == null || text.isEmpty()) {
-            return 0;
-        }
-         String[] sentences = text.split("[.!?]");
+        String[] sentences = text.split("[.!?]");
         long sentenceCount = Arrays.stream(sentences).filter(s -> !s.trim().isEmpty()).count();
         return (int) sentenceCount;
     }
 
     private int countSyllables(String text) {
-        if (text == null || text.isEmpty()) {
-            return 0;
-        }
-
         int syllableCount = 0;
         String[] words = text.split("\\s+");
         

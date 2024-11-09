@@ -27,7 +27,7 @@
                 @if(video.getDescription().length() > 400) {
                     <span class="short-description">@video.getDescription().substring(0, 400)</span>
                     <span class="dots">...</span>
-                    <span class="full-description" style="display: none;">@video.getDescription().substring(400)</span>
+                    <span class="full-description" style="display: none;">@video.getDescription()</span>
                     <a href="javascript:void(0);" class="toggle-button" onclick="toggleDescription(this)">Show more</a>
                 } else {
                     <span>@video.getDescription()</span>
