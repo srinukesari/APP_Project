@@ -16,6 +16,7 @@ import play.i18n.MessagesApi;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.concurrent.CompletableFuture; 
 
 /* @author: Team */
 public class SearchController  extends Controller{
@@ -130,21 +131,22 @@ public class SearchController  extends Controller{
         }
     }
 
-    /* @author: sahithi */
-    public Result displayStats(String searchTerms) {
-        Optional<SearchResults> searchResultsOpt = morestatsResults.stream()
-            .filter(sr -> sr.getSearchTerms().equals(searchTerms))
-            .findFirst();
+    public CompletableFuture<Result> displayStats(String searchTerms) {
+        return CompletableFuture.supplyAsync(() -> {
+            Optional<SearchResults> searchResultsOpt = morestatsResults.stream()
+                .filter(sr -> sr.getSearchTerms().equals(searchTerms))
+                .findFirst();
 
-        if (searchResultsOpt.isPresent()) {
-            List<YouTubeVideo> videos = searchResultsOpt.get().getYouTubeVideosList();
-            MoreStats stats = new MoreStats(searchTerms, videos);
-            Map<String, Long> wordStats = stats.getWordStatistics();
+            if (searchResultsOpt.isPresent()) {
+                List<YouTubeVideo> videos = searchResultsOpt.get().getYouTubeVideosList();
+                MoreStats stats = new MoreStats(searchTerms, videos);
+                Map<String, Long> wordStats = stats.getWordStatistics();
 
-            return ok(views.html.wordstats.render(wordStats));
-        } else {
-            return badRequest("No search results found for the given terms.");
-        }
+                return ok(views.html.wordstats.render(wordStats));
+            } else {
+                return badRequest("No search results found for the given terms.");
+            }
+        });
     }
 
     /* @author: sahithi */

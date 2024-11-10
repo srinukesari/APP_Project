@@ -31,6 +31,8 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static org.junit.Assert.fail;
 
+import java.util.concurrent.CompletableFuture; 
+
 public class SearchControllerTest {
 
     @Mock
@@ -465,7 +467,8 @@ public class SearchControllerTest {
             e.printStackTrace();
             fail("Exception while mocking YouTubeSearch");
         }
-        Result result = searchController.displayStats(searchTerm);
+        CompletableFuture<Result> results = searchController.displayStats(searchTerm);
+        Result result = results.join();
         assertEquals(OK, result.status());
         String content = contentAsString(result);
 
@@ -479,7 +482,8 @@ public class SearchControllerTest {
     @Test
     public void testDisplayStatsSearchNotFound() {
         String searchTerm = "nonExistentTerm";
-        Result result = searchController.displayStats(searchTerm);
+        CompletableFuture<Result> results = searchController.displayStats(searchTerm);
+        Result result = results.join();
         assertEquals(BAD_REQUEST, result.status());
         String content = contentAsString(result);
         assertTrue("The content should contain an error message when no results are found", content.contains("No search results found for the given terms."));
@@ -492,7 +496,8 @@ public class SearchControllerTest {
         searchController.displayResults.clear();
         List<YouTubeVideo> mockVideos = new ArrayList<>();
         SearchResults mockSearchResults = new SearchResults(searchTerm, mockVideos);
-        Result result = searchController.displayStats(searchTerm);
+        CompletableFuture<Result> results = searchController.displayStats(searchTerm);
+        Result result = results.join();
         assertEquals(BAD_REQUEST, result.status());
         String content = contentAsString(result);
         assertTrue(content.contains("No search results found for the given terms."));
