@@ -68,7 +68,7 @@ h1 {
 }
 
 .video-item {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
     transition: box-shadow 0.3s ease;
     display: flex;
     align-items: flex-start;
