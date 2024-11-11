@@ -38,99 +38,107 @@ public class SearchController  extends Controller{
     }
 
     /* @author: aniket */
-    public Result search(Http.Request request){
-        try {
-            Form<Search> searchForm = formFactory.form(Search.class).bindFromRequest(request);
-            Messages messages = messagesApi.preferred(request);
+    public CompletableFuture<Result> search(Http.Request request){
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Form<Search> searchForm = formFactory.form(Search.class).bindFromRequest(request);
+                Messages messages = messagesApi.preferred(request);
 
-            if (searchForm == null || searchForm.hasErrors()) {
-                return badRequest();
-            }
-            Search data = searchForm.get();
-            if (data == null) return badRequest();
-
-            String searchKey = data.getKey();
-            if (searchKey != "") {
-                List<YouTubeVideo> YTVideosList = new ArrayList<>();
-                List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
-
-                try {
-                    YTVideosList = youTubeSearch.Search(searchKey, "home");
-                    List<String> videoIds = new ArrayList<>();
-                    for (YouTubeVideo video : YTVideosList) {
-                        videoIds.add(video.getVideoId());
-                    }
-                    YTVideosList = youTubeSearch.fetchFullDescriptions(videoIds);
-                    MorestatsVideosList.addAll(YTVideosList);
-
-                    if (YTVideosList.size() > 10) {
-                        YTVideosList = YTVideosList.subList(0, 10);
-                    }
-                } catch (Exception e) {
-                    System.out.println("check exception==== " + e);
-                    return badRequest("Exception occured from YoutubeApi");
+                if (searchForm == null || searchForm.hasErrors()) {
+                    return badRequest();
                 }
+                Search data = searchForm.get();
+                if (data == null) return badRequest();
 
-                double averageFleschKincaidGradeLevel = calculateAverageFleschKincaidGradeLevel(MorestatsVideosList);
-                double averageFleschReadingEaseScore = calculateAverageFleschReadingEaseScore(MorestatsVideosList);
+                String searchKey = data.getKey();
+                if (searchKey != "") {
+                    List<YouTubeVideo> YTVideosList = new ArrayList<>();
+                    List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
 
-                SearchResults sr = new SearchResults(searchKey, YTVideosList);
-                SearchResults sr1 = new SearchResults(searchKey, MorestatsVideosList);
-                sr.setAverageFleschKincaidGradeLevel(averageFleschKincaidGradeLevel);
-                sr.setAverageFleschReadingEaseScore(averageFleschReadingEaseScore);
-                displayResults.add(0, sr);
-                morestatsResults.add(0, sr1);
+                    try {
+                        YTVideosList = youTubeSearch.Search(searchKey, "home");
+                        List<String> videoIds = new ArrayList<>();
+                        for (YouTubeVideo video : YTVideosList) {
+                            videoIds.add(video.getVideoId());
+                        }
+                        YTVideosList = youTubeSearch.fetchFullDescriptions(videoIds);
+                        MorestatsVideosList.addAll(YTVideosList);
+
+                        if (YTVideosList.size() > 10) {
+                            YTVideosList = YTVideosList.subList(0, 10);
+                        }
+                    } catch (Exception e) {
+                        System.out.println("check exception==== " + e);
+                        return badRequest("Exception occured from YoutubeApi");
+                    }
+
+                    CompletableFuture<Double> gradeLevelFuture = calculateAverageFleschKincaidGradeLevel(MorestatsVideosList);
+                    CompletableFuture<Double> easeScoreFuture = calculateAverageFleschReadingEaseScore(MorestatsVideosList);
+
+                    // Wait for both calculations to complete
+                    CompletableFuture.allOf(gradeLevelFuture, easeScoreFuture).join();
+
+                    SearchResults sr = new SearchResults(searchKey, YTVideosList);
+                    SearchResults sr1 = new SearchResults(searchKey, MorestatsVideosList);
+                    sr.setAverageFleschKincaidGradeLevel(averageFleschKincaidGradeLevel);
+                    sr.setAverageFleschReadingEaseScore(averageFleschReadingEaseScore);
+                    displayResults.add(0, sr);
+                    morestatsResults.add(0, sr1);
+                }
+                Form<Search> newSearchForm = formFactory.form(Search.class);
+                return ok(search.render(newSearchForm, displayResults, messages));
+            }catch (Exception e){
+                System.out.println("check here -=------>"+e);
+                return badRequest("Exception occured");
             }
-            Form<Search> newSearchForm = formFactory.form(Search.class);
-            return ok(search.render(newSearchForm, displayResults, messages));
-        }catch (Exception e){
-            System.out.println("check here -=------>"+e);
-            return badRequest("Exception occured");
-        }
-
+        });
     }
 
     /* @author: sushmitha */
-    public Result profile(Http.Request request){
-        String channelName = request.getQueryString("channel");
-        if (channelName == null) {
-            return badRequest("ChannelName not provided");
-        }
-        List<YouTubeVideo> YTVideosList = new ArrayList<>();
-        try {
-            YTVideosList = youTubeSearch.Search(channelName,"profile");
-            if (YTVideosList.size() > 10) {
-                YTVideosList = YTVideosList.subList(0, 10); 
+    public CompletableFuture<Result> profile(Http.Request request){
+        return CompletableFuture.supplyAsync(() -> {
+            String channelName = request.getQueryString("channel");
+            if (channelName == null) {
+                return badRequest("ChannelName not provided");
             }
-        } catch (Exception e) {
-            return badRequest("Invalid API Key");
-        }
+            List<YouTubeVideo> YTVideosList = new ArrayList<>();
+            try {
+                YTVideosList = youTubeSearch.Search(channelName,"profile");
+                if (YTVideosList.size() > 10) {
+                    YTVideosList = YTVideosList.subList(0, 10); 
+                }
+            } catch (Exception e) {
+                return badRequest("Invalid API Key");
+            }
 
-        return ok(profile.render(channelName,YTVideosList));
+            return ok(profile.render(channelName,YTVideosList));
+        });
     }
 
     /* @author: srinu.kesari */
-    public Result tags(Http.Request request){
-        String videoId = request.getQueryString("videoId");
-        String hashTag = request.getQueryString("hashTag");
+    public CompletableFuture<Result> tags(Http.Request request){
+        return CompletableFuture.supplyAsync(() -> {
+            String videoId = request.getQueryString("videoId");
+            String hashTag = request.getQueryString("hashTag");
 
-        if (videoId == null && hashTag == null) {
-            return badRequest("videoId/ hashTag not provided");
-        }
-        List<YouTubeVideo> YTVideosList = new ArrayList<>();
-        try {
-            if(videoId != null){
-                YTVideosList = youTubeSearch.Search(videoId,"tags");
-                return ok(videotags.render(videoId,YTVideosList));
-            } else {
-                YTVideosList = youTubeSearch.Search(hashTag,"hashTag");
-                return ok(tagsearch.render(hashTag,YTVideosList));
+            if (videoId == null && hashTag == null) {
+                return badRequest("videoId/ hashTag not provided");
             }
-        } catch (Exception e) {
-            return badRequest("Invalid API Key");
-        }
+            List<YouTubeVideo> YTVideosList = new ArrayList<>();
+            try {
+                if(videoId != null){
+                    YTVideosList = youTubeSearch.Search(videoId,"tags");
+                    return ok(videotags.render(videoId,YTVideosList));
+                } else {
+                    YTVideosList = youTubeSearch.Search(hashTag,"hashTag");
+                    return ok(tagsearch.render(hashTag,YTVideosList));
+                }
+            } catch (Exception e) {
+                return badRequest("Invalid API Key");
+            }
+        });
     }
-
+     /* @author: sahiti */
     public CompletableFuture<Result> displayStats(String searchTerms) {
         return CompletableFuture.supplyAsync(() -> {
             Optional<SearchResults> searchResultsOpt = morestatsResults.stream()
@@ -150,31 +158,35 @@ public class SearchController  extends Controller{
     }
 
     /* @author: sahithi */
-    public double calculateAverageFleschKincaidGradeLevel(List<YouTubeVideo> videos) {
-        List<Double> gradeLevels = new ArrayList<>();
-        for (YouTubeVideo video : videos) {
-            gradeLevels.add(video.getFleschKincaidGradeLevel());
-        }
-        averageFleschKincaidGradeLevel = gradeLevels.stream()
-            .mapToDouble(Double::doubleValue)
-            .average()
-            .orElse(0.0);
-        averageFleschKincaidGradeLevel = new BigDecimal(averageFleschKincaidGradeLevel).setScale(3, RoundingMode.HALF_UP).doubleValue();
-        return averageFleschKincaidGradeLevel;
+    public CompletableFuture<Double> calculateAverageFleschKincaidGradeLevel(List<YouTubeVideo> videos) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<Double> gradeLevels = new ArrayList<>();
+            for (YouTubeVideo video : videos) {
+                gradeLevels.add(video.getFleschKincaidGradeLevel());
+            }
+            averageFleschKincaidGradeLevel = gradeLevels.stream()
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(0.0);
+            averageFleschKincaidGradeLevel = new BigDecimal(averageFleschKincaidGradeLevel).setScale(3, RoundingMode.HALF_UP).doubleValue();
+            return averageFleschKincaidGradeLevel;
+        });
     }
 
     /* @author: sahithi */
-    public double calculateAverageFleschReadingEaseScore(List<YouTubeVideo> videos) {
-        List<Double> easeScores = new ArrayList<>();
-        for (YouTubeVideo video : videos) {
-            easeScores.add(video.getFleschReadingEaseScore());
-        }
-        averageFleschReadingEaseScore = easeScores.stream()
-            .mapToDouble(Double::doubleValue)
-            .average()
-            .orElse(0.0);
-        averageFleschReadingEaseScore = new BigDecimal(averageFleschReadingEaseScore).setScale(3, RoundingMode.HALF_UP).doubleValue();
-        return averageFleschReadingEaseScore;
+    public CompletableFuture<Double> calculateAverageFleschReadingEaseScore(List<YouTubeVideo> videos) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<Double> easeScores = new ArrayList<>();
+            for (YouTubeVideo video : videos) {
+                easeScores.add(video.getFleschReadingEaseScore());
+            }
+            averageFleschReadingEaseScore = easeScores.stream()
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(0.0);
+            averageFleschReadingEaseScore = new BigDecimal(averageFleschReadingEaseScore).setScale(3, RoundingMode.HALF_UP).doubleValue();
+            return averageFleschReadingEaseScore;
+        });
     }
     
 }

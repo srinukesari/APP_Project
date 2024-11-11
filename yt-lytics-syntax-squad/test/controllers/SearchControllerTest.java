@@ -67,8 +67,8 @@ public class SearchControllerTest {
         Form<Search> searchForm = Mockito.mock(Form.class);
         Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
         Mockito.when(searchForm.bindFromRequest(request)).thenReturn(null);
-
-        Result result = searchController.search(request);
+        CompletableFuture<Result> results = searchController.search(request);
+        Result result = results.join();
         assertEquals(400, result.status());
     }
 
@@ -78,8 +78,8 @@ public class SearchControllerTest {
         Mockito.when(formFactory.form(Search.class)).thenReturn(searchForm);
         Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
         Mockito.when(searchForm.hasErrors()).thenReturn(true);
-
-        Result result = searchController.search(request);
+        CompletableFuture<Result> results = searchController.search(request);
+        Result result = results.join();
         assertEquals(400, result.status());
     }
 
@@ -90,8 +90,8 @@ public class SearchControllerTest {
         Mockito.when(searchForm.bindFromRequest(request)).thenReturn(searchForm);
         Mockito.when(searchForm.hasErrors()).thenReturn(false);
         Mockito.when(searchForm.get()).thenReturn(null);
-
-        Result result = searchController.search(request);
+        CompletableFuture<Result> results = searchController.search(request);
+        Result result = results.join();
         assertEquals(400, result.status());
     }
 
@@ -114,7 +114,8 @@ public class SearchControllerTest {
         try{
             Mockito.when(youTubeSearch.Search("testSearchKey", "home")).
                     thenThrow(new IOException("Invalid API Key"));
-            Result result = searchController.search(request);
+            CompletableFuture<Result> results = searchController.search(request);
+            Result result = results.join(); 
 
             String content = contentAsString(result);
 
@@ -143,31 +144,22 @@ public class SearchControllerTest {
 
 
         List<YouTubeVideo> mockVideos = new ArrayList<>();
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
+        for (int i = 1; i < 17; i++) {
+            if (i % 2 == 0) {
+                int j = 2;
+                mockVideos.add(new YouTubeVideo("Id" + j, "title" + j, "TestChannel", "description" + j, "thumbnail" + j, null));
+            } else {
+                int j = 1;
+                mockVideos.add(new YouTubeVideo("Id" + j, "title" + j, "TestChannel", "description" + j, "thumbnail" + j, null));
+            }
+        }
 
         try{
             Mockito.when(youTubeSearch.Search("testSearchKey", "home")).thenReturn(mockVideos);
             Mockito.when(youTubeSearch.fetchFullDescriptions(ArgumentMatchers.anyList())).thenReturn(mockVideos);
-
-            Result result = searchController.search(request);
-
+            CompletableFuture<Result> results = searchController.search(request);
+            Result result = results.join(); 
             String content = contentAsString(result);
-
             assertEquals(400, result.status());
         } catch (IOException e) {
             e.printStackTrace();
@@ -198,20 +190,15 @@ public class SearchControllerTest {
         mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel",
                 "THIS DESCRIPTION IS GREATER THAN 50 LENGTH,SO TYPING BLAW BLAW BLAW BLAW BLAW BLACK SHEEP BLAW SHEEP",
                 "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "", "thumbnail2", null));
-
+        for (int i = 1; i < 14; i++) {
+            if (i % 2 == 0) {
+                int j = 2;
+                mockVideos.add(new YouTubeVideo("Id" + j, "title" + j, "TestChannel", "description" + j, "thumbnail" + j, null));
+            }else{
+                int j = 1;
+                mockVideos.add(new YouTubeVideo("Id" + j, "title" + j, "TestChannel", "description" + j, "thumbnail" + j, null));
+            }
+        }
         try{
             Mockito.when(youTubeSearch.Search("testSearchKey", "home")).thenReturn(mockVideos);
             Mockito.when(youTubeSearch.fetchFullDescriptions(ArgumentMatchers.anyList())).thenReturn(mockVideos);
@@ -221,8 +208,8 @@ public class SearchControllerTest {
             Mockito.when(searchForm.field("key")).thenReturn(mockField);
             Mockito.when(mockField.name()).thenReturn(Optional.of("key"));
             Mockito.when(mockField.value()).thenReturn(Optional.of("testSearchKey"));
-
-            Result result = searchController.search(request);
+            CompletableFuture<Result> results = searchController.search(request);
+            Result result = results.join();
 
             String content = contentAsString(result);
 
@@ -241,8 +228,8 @@ public class SearchControllerTest {
                 .method("GET")
                 .uri("/profile");
 
-        Result result = searchController.profile(request.build());
-
+        CompletableFuture<Result> futureResult = searchController.profile(request.build());
+        Result result = futureResult.join();
         assertEquals(BAD_REQUEST, result.status());
         assertEquals("ChannelName not provided", contentAsString(result));
     }
@@ -260,8 +247,8 @@ public class SearchControllerTest {
 
         try{
             Mockito.when(youTubeSearch.Search(channelName, "profile")).thenReturn(mockVideos);
-
-            Result result = searchController.profile(request.build());
+            CompletableFuture<Result> futureResult = searchController.profile(request.build());
+            Result result = futureResult.join();
 
             String content = contentAsString(result);
 
@@ -285,31 +272,21 @@ public class SearchControllerTest {
                 .uri("/profile?channel=" + channelName);
 
         List<YouTubeVideo> mockVideos = new ArrayList<>();
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "description1", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel", "description2", "thumbnail2", null));
-
+        for (int i = 1; i < 17; i++) {
+            if (i % 2 == 0) {
+                int j = 2;
+                mockVideos.add(new YouTubeVideo("Id" + j, "title" + j, "TestChannel", "description" + j, "thumbnail" + j, null));
+            } else {
+                int j = 1;
+                mockVideos.add(new YouTubeVideo("Id" + j, "title" + j, "TestChannel", "description" + j, "thumbnail" + j, null));
+            }
+        }
 
         try{
             Mockito.when(youTubeSearch.Search(channelName, "profile")).thenReturn(mockVideos);
-
-            Result result = searchController.profile(request.build());
-
+            CompletableFuture<Result> futureResult = searchController.profile(request.build());
+            Result result = futureResult.join();
             String content = contentAsString(result);
-
             assertEquals(OK, result.status());
 
             for (YouTubeVideo video : mockVideos) {
@@ -332,8 +309,8 @@ public class SearchControllerTest {
         try{
             Mockito.when(youTubeSearch.Search(channelName, "profile")).
                     thenThrow(new IOException("Invalid API Key"));
-
-            Result result = searchController.profile(request.build());
+            CompletableFuture<Result> futureResult = searchController.profile(request.build());
+            Result result = futureResult.join(); 
 
             String content = contentAsString(result);
 
@@ -356,8 +333,8 @@ public class SearchControllerTest {
         try{
             Mockito.when(youTubeSearch.Search(videoId, "tags")).
                     thenThrow(new IOException("Invalid API Key"));
-
-            Result result = searchController.tags(request.build());
+            CompletableFuture<Result> futureResult = searchController.tags(request.build());
+            Result result = futureResult.join();
 
             String content = contentAsString(result);
 
@@ -375,8 +352,8 @@ public class SearchControllerTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method("GET")
                 .uri("/tags");
-
-        Result result = searchController.tags(request.build());
+        CompletableFuture<Result> futureResult = searchController.tags(request.build());
+        Result result = futureResult.join();
 
         assertEquals(BAD_REQUEST, result.status());
         assertEquals("videoId/ hashTag not provided", contentAsString(result));
@@ -397,8 +374,8 @@ public class SearchControllerTest {
 
         try {
             Mockito.when(youTubeSearch.Search(testVideoId, "tags")).thenReturn(mockVideos);
-
-            Result result = searchController.tags(request.build());
+            CompletableFuture<Result> futureResult = searchController.tags(request.build());
+            Result result = futureResult.join();
 
             String content = contentAsString(result);
 
@@ -433,8 +410,8 @@ public class SearchControllerTest {
 
         try {
             Mockito.when(youTubeSearch.Search(testHashTag, "hashTag")).thenReturn(mockVideos);
-
-            Result result = searchController.tags(request.build());
+            CompletableFuture<Result> futureResult = searchController.tags(request.build());
+            Result result = futureResult.join();
 
             String content = contentAsString(result);
 
@@ -512,7 +489,8 @@ public class SearchControllerTest {
         String description3 = "Short description.";
         YouTubeVideo video3 = new YouTubeVideo("Id3", "Video 3", "channel3", description3, "thumbnail3", Arrays.asList("tag5", "tag6"));
         List<YouTubeVideo> videos = Arrays.asList(video1, video2, video3);
-        double averageGradeLevel = searchController.calculateAverageFleschKincaidGradeLevel(videos);
+        CompletableFuture<Double> averageGradeLevels = searchController.calculateAverageFleschKincaidGradeLevel(videos);
+        double averageGradeLevel = averageGradeLevels.join();
         double expectedAverage = (video1.getFleschKincaidGradeLevel() + video2.getFleschKincaidGradeLevel() + video3.getFleschKincaidGradeLevel()) / 3;
         assertEquals("The average Flesch-Kincaid Grade Level should be correct", expectedAverage, averageGradeLevel, 0.01);
     }
@@ -526,7 +504,8 @@ public class SearchControllerTest {
         String description3 = "Short description.";
         YouTubeVideo video3 = new YouTubeVideo("Id3", "Video 3", "channel3", description3, "thumbnail3", Arrays.asList("tag5", "tag6"));
         List<YouTubeVideo> videos = Arrays.asList(video1, video2, video3);
-        double averageEaseScore = searchController.calculateAverageFleschReadingEaseScore(videos);
+        CompletableFuture<Double> averageEaseScores = searchController.calculateAverageFleschReadingEaseScore(videos);
+        double averageEaseScore = averageEaseScores.join(); 
         double expectedAverage = (video1.getFleschReadingEaseScore() + video2.getFleschReadingEaseScore() + video3.getFleschReadingEaseScore()) / 3;
         assertEquals("The average Flesch-Kincaid Grade Level should be correct", expectedAverage, averageEaseScore, 0.01);
     }
