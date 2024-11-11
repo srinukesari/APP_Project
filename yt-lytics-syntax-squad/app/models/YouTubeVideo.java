@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.io.UnsupportedEncodingException;
 
 /* @author: team */
 public class YouTubeVideo{
@@ -62,8 +63,14 @@ public class YouTubeVideo{
     }
 
     public String getHtmlLinkforProfile(){
-        String htmlLink = "/ytlytics/profile?channel="+channel;
-        return htmlLink;
+        try{
+            String encodedChannel = URLEncoder.encode(channel, StandardCharsets.UTF_8.toString());
+            String htmlLink = "/ytlytics/profile?channel="+encodedChannel;
+            return htmlLink;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return "/ytlytics/profile?channel=" + channel;
+        }
     }
 
     public String getHtmlLinkforVideoTags(){
@@ -72,8 +79,14 @@ public class YouTubeVideo{
     }
 
     public String getHtmlLinkforTagSearch(String tag){
-        String htmlLink = "/ytlytics/tags?hashTag=" + tag;
-        return htmlLink;
+        try {
+            String encodedTag = URLEncoder.encode(tag, StandardCharsets.UTF_8.toString());
+            String htmlLink = "/ytlytics/tags?hashTag=" + encodedTag;
+            return htmlLink;
+        }catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return "/ytlytics/tags?hashTag=" + tag;
+        }
     }
     private void calculateReadabilityScores() {
         if (description == null || description.isEmpty()) {

@@ -68,6 +68,7 @@ public class YouTubeSearch {
      */
     public static YouTube.Search.List getSearchRequestforProfile(YouTube youtubeService,String channelName)
             throws IOException{
+        System.out.println("check channel name ----- "+channelName);
         YouTube.Search.List searchChannelRequest = youtubeService.search()
                 .list("snippet")
                 .setQ(channelName)
@@ -84,7 +85,7 @@ public class YouTubeSearch {
         }
 
         String channelId = searchResultList.get(0).getSnippet().getChannelId();
-//        System.out.println("Found channel ID: " + channelId);
+        System.out.println("Found channel ID: " + channelId);
 
         YouTube.Search.List searchVideosRequest = youtubeService.search()
                 .list("snippet")

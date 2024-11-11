@@ -1,3 +1,5 @@
+package tests;
+
 import models.SearchResults;
 import org.junit.Test;
 import org.mockito.Mockito;
