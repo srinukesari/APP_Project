@@ -1,3 +1,4 @@
+package tests;
 import models.YouTubeVideo;
 import models.MoreStats;
 import org.junit.Before;
