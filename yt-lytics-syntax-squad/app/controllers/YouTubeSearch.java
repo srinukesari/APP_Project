@@ -14,28 +14,58 @@ import java.io.IOException;
 import java.util.*;
 import models.*;
 
-/* @author: Team */
+/**
+ * YouTubeSearch is a utility class that interacts with the YouTube Data API v3.
+ * It provides methods for searching videos by keyword, channel, hashtag, and video ID.
+ * The class also fetches video details like descriptions and tags.
+ *
+ * @author Team
+ */
 public class YouTubeSearch {
     private static final String API_KEY = "AIzaSyD0a1-a6o2zk6koHCCA-yJ827fRfPpDP5U";
-            //"AIzaSyATDszuEMCnKfoxdjnT9rhfvpL3ONbsYtE";
-            //"AIzaSyD0a1-a6o2zk6koHCCA-yJ827fRfPpDP5U";
+    //"AIzaSyATDszuEMCnKfoxdjnT9rhfvpL3ONbsYtE";
+    //"AIzaSyD0a1-a6o2zk6koHCCA-yJ827fRfPpDP5U";
     //"AIzaSyCUFy3WvnJYPDmrv6tA80xGw3-uzjo36bk"; // srinu's api key
 
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     private YouTube youtubeService;
 
+    /**
+     * Initializes the YouTubeSearch with the default YouTube API service.
+     *
+     * @author Team
+     * @description Constructor that initializes the YouTubeSearch with the YouTube API service.
+     */
     public YouTubeSearch(){
         this.youtubeService =  new YouTube.Builder(new NetHttpTransport(), JSON_FACTORY, (HttpRequestInitializer) null)
                 .setApplicationName("YTLyticsSyntaxSquad")
                 .build();
     }
 
+    /**
+     * Initializes the YouTubeSearch with a custom YouTube API service.
+     *
+     * @param youtubeService The YouTube service to use.
+     *
+     * @author Team
+     * @description Constructor to initialize the YouTubeSearch with a custom YouTube API service.
+     */
     public YouTubeSearch(YouTube youtubeService){
         this.youtubeService = youtubeService;
     }
 
-    /* @author: sushmitha */
+    /**
+     * Creates a YouTube search request to retrieve videos from a specific channel based on the channel name.
+     *
+     * @param youtubeService The YouTube service to use for the search.
+     * @param channelName The name of the channel to search for.
+     * @return The search request for retrieving videos from the channel.
+     * @throws IOException If an error occurs while making the API request.
+     *
+     * @author sushmitha
+     * @description This method constructs and executes a search request to find videos by channel name.
+     */
     public static YouTube.Search.List getSearchRequestforProfile(YouTube youtubeService,String channelName)
             throws IOException{
         YouTube.Search.List searchChannelRequest = youtubeService.search()
@@ -67,7 +97,17 @@ public class YouTubeSearch {
         return searchVideosRequest;
     }
 
-    /* @author: aniket */
+    /**
+     * Creates a YouTube search request to retrieve videos based on a search key for the home page.
+     *
+     * @param youtubeService The YouTube service to use for the search.
+     * @param searchKey The search key used to find videos.
+     * @return The search request for retrieving videos based on the search key.
+     * @throws IOException If an error occurs while making the API request.
+     *
+     * @author aniket
+     * @description This method constructs and executes a search request for videos based on a keyword search.
+     */
     public static YouTube.Search.List getSearchRequestforHome(YouTube youtubeService,String searchKey)
             throws IOException{
         return youtubeService.search()
@@ -78,7 +118,17 @@ public class YouTubeSearch {
                 .setKey(API_KEY);
     }
 
-    /* @author: srinu.kesari */
+    /**
+     * Creates a YouTube video request to retrieve details for a specific video based on its ID.
+     *
+     * @param youtubeService The YouTube service to use for the request.
+     * @param videoId The ID of the video for which details are to be retrieved.
+     * @return The video request for retrieving details of the video.
+     * @throws IOException If an error occurs while making the API request.
+     *
+     * @author srinu.kesari
+     * @description This method constructs and executes a request to get video details by video ID.
+     */
     public static YouTube.Videos.List getVideoRequestforTags(YouTube youtubeService,String videoId)
             throws IOException{
         return youtubeService.videos()
@@ -88,7 +138,17 @@ public class YouTubeSearch {
                 .setKey(API_KEY);
     }
 
-    /* @author: srinu.kesari */
+    /**
+     * Creates a YouTube search request to retrieve videos based on a hashtag.
+     *
+     * @param youtubeService The YouTube service to use for the search.
+     * @param hashTag The hashtag used to search for videos.
+     * @return The search request for retrieving videos based on the hashtag.
+     * @throws IOException If an error occurs while making the API request.
+     *
+     * @author srinu.kesari
+     * @description This method constructs and executes a search request to find videos based on a hashtag.
+     */
     public static YouTube.Search.List getSearchRequestforTags(YouTube youtubeService,String hashTag)
             throws IOException{
         return youtubeService.search()
@@ -100,7 +160,18 @@ public class YouTubeSearch {
                 .setKey(API_KEY);
     }
 
-    /* @author: srinu.kesari */
+    /**
+     * Searches for YouTube videos based on a search key or video ID, depending on the requested page type.
+     *
+     * @param search The search key or video ID to search for.
+     * @param page The page type (home, profile, tags, or hashTag).
+     * @return A list of YouTube video objects matching the search criteria.
+     * @throws IOException If an error occurs while making the API request.
+     *
+     * @author srinu.kesari
+     * @description This method searches for YouTube videos based on the search key or video ID
+     *              and page type, returning a list of matching videos.
+     */
     public List<YouTubeVideo> Search(String search, String page) throws IOException {
         List<YouTubeVideo> videosList = new ArrayList<>();
         List<SearchResult> searchResults = new ArrayList<>();
@@ -167,26 +238,35 @@ public class YouTubeSearch {
         return videosList;
     }
 
-    /* @author: sahithi */
+    /**
+     * Fetches the full descriptions and details of videos by their IDs.
+     *
+     * @param videoIds The list of video IDs to retrieve full descriptions for.
+     * @return A list of YouTubeVideo objects with detailed information.
+     * @throws IOException If an error occurs while making the API request.
+     *
+     * @author sahithi
+     * @description This method fetches the full descriptions of a list of videos based on their IDs.
+     */
     public List<YouTubeVideo> fetchFullDescriptions(List<String> videoIds) throws IOException {
         List<YouTubeVideo> videosList = new ArrayList<>();
         YouTube.Videos.List videoRequest = youtubeService.videos()
-                .list("snippet")  
+                .list("snippet")
                 .setKey(API_KEY);
 
         for (int i = 0; i < videoIds.size(); i += 50) {
             List<String> batch = videoIds.subList(i, Math.min(i + 50, videoIds.size()));
-            videoRequest.setId(String.join(",", batch)); 
+            videoRequest.setId(String.join(",", batch));
             VideoListResponse videoResponse = videoRequest.execute();
-            
+
             for (Video video : videoResponse.getItems()) {
                 YouTubeVideo youtubeVideo = new YouTubeVideo(
-                    video.getId(),
-                    video.getSnippet().getTitle(),
-                    video.getSnippet().getChannelTitle(),
-                    video.getSnippet().getDescription(),  
-                    video.getSnippet().getThumbnails().getDefault().getUrl(),
-                    video.getSnippet().getTags()
+                        video.getId(),
+                        video.getSnippet().getTitle(),
+                        video.getSnippet().getChannelTitle(),
+                        video.getSnippet().getDescription(),
+                        video.getSnippet().getThumbnails().getDefault().getUrl(),
+                        video.getSnippet().getTags()
                 );
                 videosList.add(youtubeVideo);
             }

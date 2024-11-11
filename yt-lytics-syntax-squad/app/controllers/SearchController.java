@@ -30,6 +30,16 @@ public class SearchController  extends Controller{
     private double averageFleschKincaidGradeLevel;
     private double averageFleschReadingEaseScore;
 
+    /**
+     * Constructor to initialize the SearchController.
+     *
+     * @param formFactory The form factory to create forms.
+     * @param messagesApi The messages API to handle message internationalization.
+     * @param youTubeSearch The service used to search YouTube.
+     *
+     * @author srinu.kesari
+     * @description Initializes the SearchController with the necessary dependencies.
+     */
     @Inject
     public SearchController(FormFactory formFactory, MessagesApi messagesApi,YouTubeSearch youTubeSearch) {
         this.formFactory = formFactory;
@@ -37,7 +47,16 @@ public class SearchController  extends Controller{
         this.youTubeSearch = youTubeSearch;
     }
 
-    /* @author: aniket */
+    /**
+     * Handles the search request and fetches YouTube videos based on the search key.
+     *
+     * @param request The HTTP request containing the search form data.
+     * @return The result of the search, returning the view with the search results or an error page.
+     *
+     * @author aniket
+     * @description This method handles the search request by binding form data, performing the YouTube
+     *              search, and returning the appropriate results or error.
+     */
     public CompletableFuture<Result> search(Http.Request request){
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -94,7 +113,15 @@ public class SearchController  extends Controller{
         });
     }
 
-    /* @author: sushmitha */
+    /**
+     * Searches YouTube for a channel's videos by channel name.
+     *
+     * @param request The HTTP request containing the channel name.
+     * @return A page showing the videos of the given channel or an error if the channel is not found.
+     *
+     * @author sushmitha
+     * @description This method handles the request to search for YouTube videos based on a channel's name.
+     */
     public CompletableFuture<Result> profile(Http.Request request){
         return CompletableFuture.supplyAsync(() -> {
             String channelName = request.getQueryString("channel");
@@ -115,7 +142,15 @@ public class SearchController  extends Controller{
         });
     }
 
-    /* @author: srinu.kesari */
+    /**
+     * Searches for videos related to a specific video ID or hashtag.
+     *
+     * @param request The HTTP request containing either a videoId or a hashTag.
+     * @return A page displaying videos related to the provided video ID or hashtag.
+     *
+     * @author srinu.kesari
+     * @description This method searches for YouTube videos either by videoId or hashTag and renders the results.
+     */
     public CompletableFuture<Result> tags(Http.Request request){
         return CompletableFuture.supplyAsync(() -> {
             String videoId = request.getQueryString("videoId");
@@ -138,7 +173,16 @@ public class SearchController  extends Controller{
             }
         });
     }
-     /* @author: sahiti */
+
+    /**
+     * Displays statistics related to the video content for the given search terms.
+     *
+     * @param searchTerms The search terms used to retrieve the videos.
+     * @return A page displaying the word statistics for the search results.
+     *
+     * @author sahithi
+     * @description This method retrieves and displays word statistics for YouTube videos based on search terms.
+     */
     public CompletableFuture<Result> displayStats(String searchTerms) {
         return CompletableFuture.supplyAsync(() -> {
             Optional<SearchResults> searchResultsOpt = morestatsResults.stream()
@@ -157,7 +201,15 @@ public class SearchController  extends Controller{
         });
     }
 
-    /* @author: sahithi */
+    /**
+     * Calculates the average Flesch-Kincaid grade level for a list of YouTube videos.
+     *
+     * @param videos A list of YouTubeVideo objects to calculate the average grade level.
+     * @return The average Flesch-Kincaid grade level.
+     *
+     * @author sahithi
+     * @description This method calculates the average Flesch-Kincaid grade level from a list of YouTube videos.
+     */
     public CompletableFuture<Double> calculateAverageFleschKincaidGradeLevel(List<YouTubeVideo> videos) {
         return CompletableFuture.supplyAsync(() -> {
             List<Double> gradeLevels = new ArrayList<>();
@@ -173,7 +225,15 @@ public class SearchController  extends Controller{
         });
     }
 
-    /* @author: sahithi */
+    /**
+     * Calculates the average Flesch reading ease score for a list of YouTube videos.
+     *
+     * @param videos A list of YouTubeVideo objects to calculate the average reading ease score.
+     * @return The average Flesch reading ease score.
+     *
+     * @author sahithi
+     * @description This method calculates the average Flesch reading ease score from a list of YouTube videos.
+     */
     public CompletableFuture<Double> calculateAverageFleschReadingEaseScore(List<YouTubeVideo> videos) {
         return CompletableFuture.supplyAsync(() -> {
             List<Double> easeScores = new ArrayList<>();
@@ -188,5 +248,4 @@ public class SearchController  extends Controller{
             return averageFleschReadingEaseScore;
         });
     }
-    
 }

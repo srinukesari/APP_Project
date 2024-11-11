@@ -17,12 +17,20 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 
+/**
+ * Unit tests for the YouTubeSearch class, verifying different search operations and their behavior.
+ */
 public class YouTubeSearchTest {
 
     private YouTube youtubeService;
     private YouTubeSearch youtubeSearch;
     private YouTubeSearch youtubeSearchDefault;
 
+    /**
+     * Sets up mock YouTube service before each test.
+     *
+     * @author srinu.kesari
+     */
     @Before
     public void setUp() {
         youtubeService = mock(YouTube.class, RETURNS_DEEP_STUBS);
@@ -30,7 +38,12 @@ public class YouTubeSearchTest {
         youtubeSearchDefault = new YouTubeSearch();
     }
 
-    /* @author: sushmitha */
+    /**
+     * Test case to verify that the search request for profile returns a result when a channel is found.
+     *
+     * @throws IOException if an I/O error occurs during the mock execution.
+     * @author sushmitha
+     */
     @Test
     public void testGetSearchRequestforProfile_FoundChannel() throws IOException {
         YouTube.Search.List searchChannelRequest = mock(YouTube.Search.List.class);
@@ -56,7 +69,12 @@ public class YouTubeSearchTest {
         assertNotNull(result);
     }
 
-    /* @author: sushmitha */
+    /**
+     * Test case to verify that the search request for profile returns a result when a channel is found.
+     *
+     * @throws IOException if an I/O error occurs during the mock execution.
+     * @author sushmitha
+     */
     @Test
     public void testGetSearchRequestforProfile_NoChannelsFound() throws IOException {
         YouTube.Search.List searchChannelRequest = mock(YouTube.Search.List.class);
@@ -76,28 +94,49 @@ public class YouTubeSearchTest {
         assertNull(result);
     }
 
-    /* @author: aniket */
+    /**
+     * Test case for getting the search request for the home page.
+     *
+     * @throws IOException if an I/O error occurs during the request.
+     * @author aniket
+     */
     @Test
     public void testGetSearchRequestforHome() throws IOException {
         YouTube.Search.List searchRequest = YouTubeSearch.getSearchRequestforHome(youtubeService, "sampleSearch");
         assertNotNull(searchRequest);
     }
 
-    /* @author: srinu.kesari */
+
+    /**
+     * Test case for getting the search request for the tags page.
+     *
+     * @throws IOException if an I/O error occurs during the request.
+     * @author srinu.kesari
+     */
     @Test
     public void testGetSearchRequestforTags() throws IOException {
         YouTube.Search.List searchRequest = YouTubeSearch.getSearchRequestforTags(youtubeService, "sampleSearch");
         assertNotNull(searchRequest);
     }
 
-    /* @author: srinu.kesari */
+    /**
+     * Test case for getting the video request for tags.
+     *
+     * @throws IOException if an I/O error occurs during the request.
+     * @author srinu.kesari
+     */
     @Test
     public void testGetVideoRequestforTags() throws IOException {
         YouTube.Videos.List searchRequest = YouTubeSearch.getVideoRequestforTags(youtubeService, "sampleSearch");
         assertNotNull(searchRequest);
     }
 
-    /* @author: aniket */
+    /**
+     * Test case for searching the homepage with an empty result.
+     *
+     * @throws IOException if an I/O error occurs during the mock execution.
+     * @author aniket
+     */
     @Test
     public void testSearch_HomePage_EmptyResult() throws IOException {
 
@@ -126,7 +165,12 @@ public class YouTubeSearchTest {
         assertTrue(videos.isEmpty());
     }
 
-    /* @author: srinu.kesari */
+    /**
+     * Test case for searching the hashtag page with an empty result.
+     *
+     * @throws IOException if an I/O error occurs during the mock execution.
+     * @author srinu.kesari
+     */
     @Test
     public void testSearch_HashTagPage_EmptyResult() throws IOException {
 
@@ -155,14 +199,24 @@ public class YouTubeSearchTest {
         assertTrue(videos.isEmpty());
     }
 
-    /* @author: srinu.kesari */
+    /**
+     * Test case for searching with no valid request, which should return an empty result.
+     *
+     * @throws IOException if an I/O error occurs during the mock execution.
+     * @author srinu.kesari
+     */
     @Test
     public void testSearch_WithNoRequest() throws IOException {
         List<YouTubeVideo> videos = youtubeSearch.Search("noResults", "nopage");
         assertTrue(videos.isEmpty());
     }
 
-    /* @author: sahithi */
+    /**
+     * Test case to verify the functionality of searching for tags.
+     *
+     * @throws IOException if an I/O error occurs during the mock execution.
+     * @author sahithi
+     */
     @Test
     public void testSearch_TagsPage() throws IOException {
         YouTube.Videos.List videoRequest = mock(YouTube.Videos.List.class);
@@ -201,7 +255,12 @@ public class YouTubeSearchTest {
         assertEquals("http://example.com/thumbnail.jpg", youtubeVideo.getThumbnailUrl());
     }
 
-    /* @author: sahithi */
+    /**
+     * Test case for searching the tags page with an empty result.
+     *
+     * @throws IOException if an I/O error occurs during the mock execution.
+     * @author aniket
+     */
     @Test
     public void testSearch_TagsPage_EmptyResult() throws IOException {
         YouTube.Videos.List videoRequest = mock(YouTube.Videos.List.class);
@@ -220,7 +279,15 @@ public class YouTubeSearchTest {
         assertTrue(videos.isEmpty()); 
     }
 
-    /* @author: sahithi */
+    /**
+     * Test case for fetching full descriptions of a single video.
+     *
+     * This test mocks a single video response and verifies the details such as
+     * title, channel name, description, tags, and thumbnail URL.
+     *
+     * @throws IOException if an I/O error occurs during the request.
+     * @author sahithi
+     */
     @Test
     public void testFetchFullDescriptions_SingleVideo() throws IOException {
         List<String> videoIds = Collections.singletonList("testVideoId");
@@ -260,7 +327,15 @@ public class YouTubeSearchTest {
         assertEquals("http://example.com/thumbnail.jpg", youtubeVideo.getThumbnailUrl());  
     }
 
-    /* @author: sahithi */
+    /**
+     * Test case for fetching full descriptions when no videos are found.
+     *
+     * This test verifies that the method correctly handles the case where no
+     * videos are returned for the given video IDs.
+     *
+     * @throws IOException if an I/O error occurs during the request.
+     * @author sahithi
+     */
     @Test
     public void testFetchFullDescriptions_NoVideosFound() throws IOException {
         List<String> videoIds = Collections.singletonList("nonExistentVideoId");
