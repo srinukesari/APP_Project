@@ -17,10 +17,6 @@ libraryDependencies += "org.mockito" % "mockito-core" % "3.9.0" % Test
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.8"
 libraryDependencies += "org.mockito" % "mockito-inline" % "5.2.0" % Test
 
-libraryDependencies += "com.google.http-client" % "google-http-client-gson" % "1.39.2"
-libraryDependencies += "com.typesafe.play" %% "play" % "2.8.8"
-libraryDependencies += "javax.inject" % "javax.inject" % "1"
-dependencyOverrides += "org.scala-lang.modules" %% "scala-xml" % "2.2.0"
 
 
 
