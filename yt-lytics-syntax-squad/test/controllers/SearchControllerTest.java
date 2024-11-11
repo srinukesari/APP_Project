@@ -1,3 +1,4 @@
+package tests;
 import controllers.*;
 import models.*;
 import org.junit.Before;
