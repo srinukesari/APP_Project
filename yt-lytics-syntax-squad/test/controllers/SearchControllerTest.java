@@ -31,8 +31,13 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static org.junit.Assert.fail;
 
-import java.util.concurrent.CompletableFuture; 
+import java.util.concurrent.CompletableFuture;
 
+/**
+ * Test class for the {@link SearchController}.
+ * This class contains unit tests for different scenarios of the search functionality.
+ * It uses Mockito to mock dependencies and test the behavior of the controller.
+ */
 public class SearchControllerTest {
 
     @Mock
@@ -53,6 +58,10 @@ public class SearchControllerTest {
     private Http.Request request;
     private List<SearchResults> displayResults;
 
+    /**
+     * Setup method to initialize mocks and prepare common test data before each test.
+     * It mocks the dependencies and sets up a mock request.
+     */
     @Before
     public void setup() {
         MockitoAnnotations.openMocks(this);
@@ -61,7 +70,12 @@ public class SearchControllerTest {
         displayResults = new ArrayList<>();
     }
 
-    /* @author: Aniket */
+    /**
+     * Test case to verify the behavior when the search form is null.
+     * The test expects a 400 Bad Request response when the form is not provided.
+     *
+     * @author srinu.kesari
+     */
     @Test
     public void testSearchFormisNull() {
         Form<Search> searchForm = Mockito.mock(Form.class);
@@ -72,6 +86,12 @@ public class SearchControllerTest {
         assertEquals(400, result.status());
     }
 
+    /**
+     * Test case to verify the behavior when the search form has validation errors.
+     * The test expects a 400 Bad Request response when the form has errors.
+     *
+     * @author srinu.kesari
+     */
     @Test
     public void testSearchFormhasErrors() {
         Form<Search> searchForm = Mockito.mock(Form.class);
@@ -83,6 +103,12 @@ public class SearchControllerTest {
         assertEquals(400, result.status());
     }
 
+    /**
+     * Test case to verify the behavior when the search form's key is null.
+     * The test expects a 400 Bad Request response when the search form's key is not provided.
+     *
+     * @author srinu.kesari
+     */
     @Test
     public void testSearchFormKeyisNull() {
         Form<Search> searchForm = Mockito.mock(Form.class);
@@ -95,6 +121,13 @@ public class SearchControllerTest {
         assertEquals(400, result.status());
     }
 
+    /**
+     * Test case to verify the behavior when an exception occurs while calling the YouTube API.
+     * Specifically, it tests that an {@link IOException} (e.g., due to an invalid API key) results in
+     * a 400 Bad Request response.
+     *
+     * @author Aniket
+     */
     @Test
     public void testSearchFormhasYoutubeApiException() {
 
@@ -125,7 +158,12 @@ public class SearchControllerTest {
         }
     }
 
-    /* srinu.kesari */
+    /**
+     * Test case to verify the behavior when there are more than expected YouTube videos
+     * and an exception occurs. Specifically, it expects a 400 Bad Request response.
+     *
+     * @author aniket
+     */
     @Test
     public void testSearchFormhasMoreVideoswithException() {
 
@@ -167,6 +205,12 @@ public class SearchControllerTest {
         }
     }
 
+    /**
+     * Test case to verify the behavior when there are YouTube videos without descriptions
+     * or with descriptions that are invalid. It expects a 400 Bad Request response.
+     *
+     * @author aniket
+     */
     @Test
     public void testSearchFormhasNoDescriptionwithException() {
 
@@ -221,7 +265,12 @@ public class SearchControllerTest {
     }
 
 
-    /* @author: sushmitha */
+    /**
+     * Test case to verify the behavior when the channel name is missing in the profile request.
+     * It expects a 400 Bad Request response with an appropriate error message.
+     *
+     * @author sushmitha
+     */
     @Test
     public void testProfileChannelNameMissing() {
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -234,6 +283,12 @@ public class SearchControllerTest {
         assertEquals("ChannelName not provided", contentAsString(result));
     }
 
+    /**
+     * Test case to verify the behavior when the channel name is provided in the profile request.
+     * It expects a 200 OK response and checks that video titles and descriptions are in the response content.
+     *
+     * @author sushmitha
+     */
     @Test
     public void testProfileChannelNameProvided() {
         String channelName = "TestChannel";
@@ -264,6 +319,13 @@ public class SearchControllerTest {
         }
     }
 
+    /**
+     * Test case for the profile page when there are more than 10 videos.
+     * It mocks the response from the YouTube API and checks if the video titles and descriptions
+     * are correctly displayed in the response content.
+     *
+     * @author aniket
+     */
     @Test
     public void testProfileMoreThan10Videos() {
         String channelName = "TestChannel";
@@ -299,6 +361,12 @@ public class SearchControllerTest {
         }
     }
 
+    /**
+     * Test case for handling an invalid API key when fetching profile data.
+     * It verifies that a BAD_REQUEST response is returned and the error message is displayed.
+     *
+     * @author srinu.kesari
+     */
     @Test
     public void testProfilePageExceptionInvalidAPIKey() {
         String channelName = "TestChannel";
@@ -322,7 +390,12 @@ public class SearchControllerTest {
         }
     }
 
-    /* @author: srinu.kesari */
+    /**
+     * Test case for handling an exception when the API key is invalid during tag search.
+     * It ensures the system returns a BAD_REQUEST response and displays the error message.
+     *
+     * @author sahithi
+     */
     @Test
     public void testTagsExceptionInvalidAPIKey() {
         String videoId = "TestVideo";
@@ -347,6 +420,12 @@ public class SearchControllerTest {
     }
 
 
+    /**
+     * Test case to verify that the system returns an error when no videoId or hashTag is provided
+     * for a tag search request.
+     *
+     * @author sahithi
+     */
     @Test
     public void testTagsVideoIdandHashTagMissing() {
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -359,6 +438,13 @@ public class SearchControllerTest {
         assertEquals("videoId/ hashTag not provided", contentAsString(result));
     }
 
+    /**
+     * Test case to check that the videoId tag search returns the expected video details.
+     * It mocks the response and verifies that the video details, including tags, are correctly
+     * displayed in the HTML content.
+     *
+     * @author sahithi
+     */
     @Test
     public void testTagsContainsVideoId() {
         String testVideoId = "testVideoId"; // Example channel name
@@ -395,6 +481,12 @@ public class SearchControllerTest {
     }
 
 
+    /**
+     * Test case to check that the hashtag tag search returns the expected video details.
+     * It mocks the response and verifies that the video details are correctly displayed in the HTML.
+     *
+     * @author sahithi
+     */
     @Test
     public void testTagsContainsHashTag() {
         String testHashTag = "testHashTag"; // Example channel name
@@ -427,7 +519,12 @@ public class SearchControllerTest {
         }
     }
 
-    /* @author: sahithi */
+    /**
+     * Test case to verify that the stats page displays the correct frequency of search terms found
+     * in the descriptions of the videos.
+     *
+     * @author sahithi
+     */
     @Test
     public void testDisplayStatsSearchFound() {
         String searchTerm = "testTerm";
@@ -456,6 +553,12 @@ public class SearchControllerTest {
         assertTrue("The content should contain the word 'description' with frequency '2'", normalizedContent.contains("<td>description</td> <td>2</td>"));
     }
 
+    /**
+     * Test case for handling the scenario where no search results are found for the given search term.
+     * It verifies that a BAD_REQUEST status is returned and the appropriate error message is displayed.
+     *
+     * @author sahiti
+     */
     @Test
     public void testDisplayStatsSearchNotFound() {
         String searchTerm = "nonExistentTerm";
@@ -467,6 +570,12 @@ public class SearchControllerTest {
     }
 
 
+    /**
+     * Test case for handling the scenario where the search term results in an empty list of videos.
+     * It ensures that the system returns a BAD_REQUEST status and the appropriate message is shown.
+     *
+     * @author sahiti
+     */
     @Test
     public void testDisplayStatsWithEmptyResults() {
         String searchTerm = "validSearchTermWithNoResults";
@@ -480,6 +589,13 @@ public class SearchControllerTest {
         assertTrue(content.contains("No search results found for the given terms."));
     }
 
+    /**
+     * Test case to calculate the average Flesch-Kincaid Grade Level of multiple video descriptions.
+     * It verifies that the system correctly calculates the average based on the Flesch-Kincaid Grade Level
+     * for each video's description.
+     *
+     * @author sahiti
+     */
     @Test
     public void testCalculateAverageFleschKincaidGradeLevel() {
         String description1 = "This is a test description. It should be long enough to calculate syllables and sentences.";
@@ -495,6 +611,13 @@ public class SearchControllerTest {
         assertEquals("The average Flesch-Kincaid Grade Level should be correct", expectedAverage, averageGradeLevel, 0.01);
     }
 
+    /**
+     * Test case to calculate the average Flesch Reading Ease Score of multiple video descriptions.
+     * It verifies that the system correctly calculates the average based on the Flesch Reading Ease Score
+     * for each video's description.
+     *
+     * @author sahiti
+     */
     @Test
     public void testCalculateAverageFleschReadingEaseScore() {
         String description1 = "This is a test description. It should be long enough to calculate syllables and sentences.";
