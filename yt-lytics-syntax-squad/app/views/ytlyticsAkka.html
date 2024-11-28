@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Lytics</title>
+</head>
+<body>
+<h1>YT Lytics!!!</h1>
+<form id="socketForm">
+    <input type="text" id="inputMessage" placeholder="Type your Search here" required />
+    <button type="button" id="sendButton">Go</button>
+</form>
+<div id="output">
+    <h2>Server Response:</h2>
+    <pre id="response"></pre>
+</div>
+<script>
+    // Establish WebSocket connection
+    const socket = new WebSocket("ws://localhost:9000/ws");
+
+    // Handle WebSocket events
+    socket.onopen = () => {
+        console.log("WebSocket connection established.");
+    };
+
+    socket.onmessage = (event) => {
+        console.log("event came ----->",event?.data);
+        prependResponseToWebPage(event?.data);
+    };
+
+    socket.onerror = (error) => {
+        console.error("WebSocket error:", error);
+    };
+
+    socket.onclose = () => {
+        console.log("WebSocket connection closed.");
+    };
+
+    document.getElementById("sendButton").addEventListener("click", () => {
+        const input = document.getElementById("inputMessage").value.trim();
+        if (input) {
+            const message = {
+                path: "search",
+                key: input,
+            };
+            // Send JSON stringified message over WebSocket
+            socket.send(JSON.stringify(message));
+        } else {
+            alert("Please enter a message.");
+        }
+    });
+
+    function prependResponseToWebPage(jsonData) {
+        const container = document.getElementById("response");
+
+        // Create a new element to hold the JSON data
+        const jsonElement = document.createElement("div");
+        jsonElement.className = "search-item"; // Add a class for styling if needed
+
+        jsonData = JSON.parse(jsonData);
+
+        jsonElement.innerHTML = `
+            <h3>SearchTerm: ${jsonData?.searchTerms}</h3>
+            <p>averageFleschReadingEaseScore: ${jsonData?.averageFleschReadingEaseScore}</p>
+            <p>averageFleschKincaidGradeLevel: ${jsonData?.averageFleschKincaidGradeLevel}</p>
+        `;
+
+        const ytVideoList = jsonData?.youTubeVideosList || [];
+        ytVideoList?.forEach((item) => {
+            const ytVideoDiv = document.createElement("div");
+            ytVideoDiv.className = "search-item-video";
+
+            ytVideoDiv.innerHTML = `
+                <p>Title: ${item?.title}</p>
+                <p>Channel: ${item?.channel}</p>
+            `;
+            jsonElement.appendChild(ytVideoDiv);
+        });
+        container.prepend(jsonElement);
+    }
+
+</script>
+</body>
+</html>

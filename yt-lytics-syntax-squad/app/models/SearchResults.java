@@ -2,6 +2,8 @@ package models;
 import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /* @author: team */
 public class SearchResults {
@@ -15,17 +17,22 @@ public class SearchResults {
         this.youTubeVideosList = youTubeVideosList;
     }
 
+    @JsonProperty("searchTerms")
     public String getSearchTerms(){
         return searchTerms;
     }
 
+    @JsonProperty("youTubeVideosList")
     public List<YouTubeVideo> getYouTubeVideosList() {
         return youTubeVideosList;
     }
+
+    @JsonProperty("averageFleschKincaidGradeLevel")
     public double getAverageFleschKincaidGradeLevel() {
         return averageFleschKincaidGradeLevel;
     }
 
+    @JsonProperty("averageFleschReadingEaseScore")
     public double getAverageFleschReadingEaseScore() {
         return averageFleschReadingEaseScore;
     }

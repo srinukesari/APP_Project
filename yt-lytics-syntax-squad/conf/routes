@@ -3,9 +3,11 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET   /ytlytics                      controllers.SearchController.search(request: Request)
-GET   /ytlytics/profile              controllers.SearchController.profile(request: Request)
-GET   /ytlytics/tags                 controllers.SearchController.tags(request: Request)
+GET   /ws                            controllers.WebSocketController.handleWebSocket
+
+GET   /ytlytics                      controllers.SearchController.search(searchKey: String)
+GET   /ytlytics/profile              controllers.SearchController.profile(channelName: String)
+GET   /ytlytics/tags                 controllers.SearchController.tags(type: String, id: String)
 
 GET   /ytlytics/morestats            controllers.SearchController.displayStats(searchTerms: String)
 

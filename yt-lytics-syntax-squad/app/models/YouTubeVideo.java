@@ -5,6 +5,8 @@ import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.io.UnsupportedEncodingException;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /* @author: team */
 public class YouTubeVideo{
@@ -30,31 +32,40 @@ public class YouTubeVideo{
         
     }
 
+    @JsonProperty("videoId")
     public String getVideoId(){ return  videoId;}
 
+    @JsonProperty("title")
     public String getTitle() {
         return title;
     }
 
+    @JsonProperty("channel")
     public String getChannel() {
         return channel;
     }
 
+    @JsonProperty("description")
     public String getDescription() {
         return description;
     }
 
+    @JsonProperty("thumbnailUrl")
     public String getThumbnailUrl() {
         return thumbnailUrl;  
     }
+
+    @JsonProperty("fleschReadingEaseScore")
     public double getFleschReadingEaseScore() {
         return fleschReadingEaseScore;
     }
 
+    @JsonProperty("fleschKincaidGradeLevel")
     public double getFleschKincaidGradeLevel() {
         return fleschKincaidGradeLevel;
     }
 
+    @JsonProperty("tags")
     public List<String> getTags(){ return tags;}
 
     public String getHtmlLinkforTitle(){

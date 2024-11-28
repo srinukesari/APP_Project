@@ -16,6 +16,9 @@ libraryDependencies += "org.junit.jupiter" % "junit-jupiter-engine" % "5.7.0" % 
 libraryDependencies += "org.mockito" % "mockito-core" % "3.9.0" % Test
 libraryDependencies += "com.google.code.gson" % "gson" % "2.8.8"
 libraryDependencies += "org.mockito" % "mockito-inline" % "5.2.0" % Test
+libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.6.14" // Replace with the latest compatible version
+libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.14" // For WebSocket flows
+libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.6.14" % Test // Optional, for testing Akka actors
 
 
 

@@ -8,6 +8,7 @@ import play.mvc.Result;
 import play.mvc.Http;
 
 import java.util.*;
+import play.libs.Json;
 
 import views.html.*;
 import play.i18n.Messages;
@@ -16,13 +17,12 @@ import play.i18n.MessagesApi;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.concurrent.CompletableFuture; 
+import java.util.concurrent.CompletableFuture;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /* @author: Team */
 public class SearchController  extends Controller{
 
-    private final FormFactory formFactory;
-    private final MessagesApi messagesApi;
     private final YouTubeSearch youTubeSearch;
 
     public List<SearchResults> displayResults = new ArrayList<>();
@@ -33,17 +33,13 @@ public class SearchController  extends Controller{
     /**
      * Constructor to initialize the SearchController.
      *
-     * @param formFactory The form factory to create forms.
-     * @param messagesApi The messages API to handle message internationalization.
      * @param youTubeSearch The service used to search YouTube.
      *
      * @author srinu.kesari
      * @description Initializes the SearchController with the necessary dependencies.
      */
     @Inject
-    public SearchController(FormFactory formFactory, MessagesApi messagesApi,YouTubeSearch youTubeSearch) {
-        this.formFactory = formFactory;
-        this.messagesApi = messagesApi;
+    public SearchController(YouTubeSearch youTubeSearch) {
         this.youTubeSearch = youTubeSearch;
     }
 
@@ -57,58 +53,49 @@ public class SearchController  extends Controller{
      * @description This method handles the search request by binding form data, performing the YouTube
      *              search, and returning the appropriate results or error.
      */
-    public CompletableFuture<Result> search(Http.Request request){
+    public CompletableFuture<Result> search(String searchKey) {
+        if (searchKey == null || searchKey.trim().isEmpty()) {
+            return CompletableFuture.completedFuture(badRequest("Search key cannot be empty"));
+        }
         return CompletableFuture.supplyAsync(() -> {
             try {
-                Form<Search> searchForm = formFactory.form(Search.class).bindFromRequest(request);
-                Messages messages = messagesApi.preferred(request);
-
-                if (searchForm == null || searchForm.hasErrors()) {
-                    return badRequest();
-                }
-                Search data = searchForm.get();
-                if (data == null) return badRequest();
-
-                String searchKey = data.getKey();
-                if (searchKey != "") {
-                    List<YouTubeVideo> YTVideosList = new ArrayList<>();
-                    List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
-
-                    try {
-                        YTVideosList = youTubeSearch.Search(searchKey, "home");
-                        List<String> videoIds = new ArrayList<>();
-                        for (YouTubeVideo video : YTVideosList) {
-                            videoIds.add(video.getVideoId());
-                        }
-                        YTVideosList = youTubeSearch.fetchFullDescriptions(videoIds);
-                        MorestatsVideosList.addAll(YTVideosList);
-
-                        if (YTVideosList.size() > 10) {
-                            YTVideosList = YTVideosList.subList(0, 10);
-                        }
-                    } catch (Exception e) {
-                        System.out.println("check exception==== " + e);
-                        return badRequest("Exception occured from YoutubeApi");
+                List<YouTubeVideo> YTVideosList = new ArrayList<>();
+                List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
+                try {
+                    YTVideosList = youTubeSearch.Search(searchKey, "home");
+                    List<String> videoIds = new ArrayList<>();
+                    for (YouTubeVideo video : YTVideosList) {
+                        videoIds.add(video.getVideoId());
                     }
-
-                    CompletableFuture<Double> gradeLevelFuture = calculateAverageFleschKincaidGradeLevel(MorestatsVideosList);
-                    CompletableFuture<Double> easeScoreFuture = calculateAverageFleschReadingEaseScore(MorestatsVideosList);
-
-                    // Wait for both calculations to complete
-                    CompletableFuture.allOf(gradeLevelFuture, easeScoreFuture).join();
-
-                    SearchResults sr = new SearchResults(searchKey, YTVideosList);
-                    SearchResults sr1 = new SearchResults(searchKey, MorestatsVideosList);
-                    sr.setAverageFleschKincaidGradeLevel(averageFleschKincaidGradeLevel);
-                    sr.setAverageFleschReadingEaseScore(averageFleschReadingEaseScore);
-                    displayResults.add(0, sr);
-                    morestatsResults.add(0, sr1);
+                    YTVideosList = youTubeSearch.fetchFullDescriptions(videoIds);
+                    MorestatsVideosList.addAll(YTVideosList);
+                    if (YTVideosList.size() > 10) {
+                        YTVideosList = YTVideosList.subList(0, 10);
+                    }
+                } catch (Exception e) {
+                    System.out.println("check exception==== " + e);
+                    return badRequest(Json.toJson("Exception occured from YoutubeApi"));
                 }
-                Form<Search> newSearchForm = formFactory.form(Search.class);
-                return ok(search.render(newSearchForm, displayResults, messages));
-            }catch (Exception e){
-                System.out.println("check here -=------>"+e);
-                return badRequest("Exception occured");
+                CompletableFuture<Double> gradeLevelFuture = calculateAverageFleschKincaidGradeLevel(MorestatsVideosList);
+                CompletableFuture<Double> easeScoreFuture = calculateAverageFleschReadingEaseScore(MorestatsVideosList);
+
+                // Wait for both calculations to complete
+                CompletableFuture.allOf(gradeLevelFuture, easeScoreFuture).join();
+
+                SearchResults sr = new SearchResults(searchKey, YTVideosList);
+                SearchResults sr1 = new SearchResults(searchKey, MorestatsVideosList);
+                sr.setAverageFleschKincaidGradeLevel(averageFleschKincaidGradeLevel);
+                sr.setAverageFleschReadingEaseScore(averageFleschReadingEaseScore);
+                displayResults.add(0, sr);
+                morestatsResults.add(0, sr1);
+
+                JsonNode jsonNode = Json.toJson(sr);
+                System.out.println("hello.  ----"+jsonNode.toString());
+
+                return ok(Json.toJson(jsonNode));
+            } catch (Exception e) {
+                System.out.println("check here -=------>" + e);
+                return badRequest(Json.toJson("Exception occured"));
             }
         });
     }
@@ -122,10 +109,9 @@ public class SearchController  extends Controller{
      * @author sushmitha
      * @description This method handles the request to search for YouTube videos based on a channel's name.
      */
-    public CompletableFuture<Result> profile(Http.Request request){
+    public CompletableFuture<Result> profile(String channelName){
         return CompletableFuture.supplyAsync(() -> {
-            String channelName = request.getQueryString("channel");
-            if (channelName == null) {
+            if (channelName == null || channelName.isEmpty()) {
                 return badRequest("ChannelName not provided");
             }
             List<YouTubeVideo> YTVideosList = new ArrayList<>();
@@ -137,8 +123,9 @@ public class SearchController  extends Controller{
             } catch (Exception e) {
                 return badRequest("Invalid API Key");
             }
-
-            return ok(profile.render(channelName,YTVideosList));
+            JsonNode jsonNode = Json.toJson(YTVideosList);
+            System.out.println("hello.  ----"+jsonNode.toString());
+            return ok(jsonNode);
         });
     }
 
@@ -151,22 +138,23 @@ public class SearchController  extends Controller{
      * @author srinu.kesari
      * @description This method searches for YouTube videos either by videoId or hashTag and renders the results.
      */
-    public CompletableFuture<Result> tags(Http.Request request){
+    public CompletableFuture<Result> tags(String type, String id){
         return CompletableFuture.supplyAsync(() -> {
-            String videoId = request.getQueryString("videoId");
-            String hashTag = request.getQueryString("hashTag");
-
-            if (videoId == null && hashTag == null) {
+            if (type == null || id == null || id.isEmpty()) {
                 return badRequest("videoId/ hashTag not provided");
             }
             List<YouTubeVideo> YTVideosList = new ArrayList<>();
             try {
-                if(videoId != null){
-                    YTVideosList = youTubeSearch.Search(videoId,"tags");
-                    return ok(videotags.render(videoId,YTVideosList));
+                if(type == "tag"){
+                    YTVideosList = youTubeSearch.Search(id,"tags");
+                    JsonNode jsonNode = Json.toJson(YTVideosList);
+                    System.out.println("hello.  ----"+jsonNode.toString());
+                    return ok(jsonNode);
                 } else {
-                    YTVideosList = youTubeSearch.Search(hashTag,"hashTag");
-                    return ok(tagsearch.render(hashTag,YTVideosList));
+                    YTVideosList = youTubeSearch.Search(id,"hashTag");
+                    JsonNode jsonNode = Json.toJson(YTVideosList);
+                    System.out.println("hello.  ----"+jsonNode.toString());
+                    return ok(jsonNode);
                 }
             } catch (Exception e) {
                 return badRequest("Invalid API Key");
