@@ -57,7 +57,7 @@ public class WebSocketController extends Controller {
 
     private Flow<String, String, ?> createWebSocketFlow(ActorRef actorRef) {
         return Flow.<String>create()
-                .keepAlive(Duration.ofSeconds(30), () -> "ping")
+                .keepAlive(Duration.ofSeconds(120), () -> "ping")
                 .mapAsync(1, message -> {
                         System.out.println("incomming msg -----> "+message);
                         if ("ping".equals(message)) {

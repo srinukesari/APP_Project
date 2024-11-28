@@ -25,7 +25,7 @@ public class MainActor extends AbstractActor {
         this.searchActor = getContext().actorOf(Props.create(SearchActor.class, materializer, youTubeSearch), "search-actor");
         this.profileActor = getContext().actorOf(Props.create(ProfileActor.class, materializer,youTubeSearch), "profile-actor");
         this.tagsActor = getContext().actorOf(Props.create(TagsActor.class,materializer,youTubeSearch), "tags-actor");
-        this.statsActor = getContext().actorOf(Props.create(MoreStatsActor.class), "morestats-actor");
+        this.statsActor = getContext().actorOf(Props.create(MoreStatsActor.class,materializer,youTubeSearch), "morestats-actor");
     }
 
     // Method to create Props for the MainActor
@@ -37,6 +37,7 @@ public class MainActor extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(JsonNode.class, json -> {
+                    System.out.println("check here srinu------>"+json);
                     String requestType = json.get("path").asText();
                     switch (requestType) {
                         case "search":
@@ -46,6 +47,9 @@ public class MainActor extends AbstractActor {
                             profileActor.forward(json, getContext());
                             break;
                         case "tags":
+                            tagsActor.forward(json, getContext());
+                            break;
+                        case "hashTag":
                             tagsActor.forward(json, getContext());
                             break;
                         case "stats":

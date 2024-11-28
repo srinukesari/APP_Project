@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.CompletableFuture;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /* @author: Team */
 public class SearchController  extends Controller{
@@ -90,9 +91,10 @@ public class SearchController  extends Controller{
                 morestatsResults.add(0, sr1);
 
                 JsonNode jsonNode = Json.toJson(sr);
-                System.out.println("hello.  ----"+jsonNode.toString());
-
-                return ok(Json.toJson(jsonNode));
+//                System.out.println("hello.  ----"+jsonNode.toString());
+                ObjectNode objectNode = (ObjectNode) jsonNode;
+                objectNode.put("path","search");
+                return ok(Json.toJson(objectNode));
             } catch (Exception e) {
                 System.out.println("check here -=------>" + e);
                 return badRequest(Json.toJson("Exception occured"));
@@ -123,7 +125,11 @@ public class SearchController  extends Controller{
             } catch (Exception e) {
                 return badRequest("Invalid API Key");
             }
-            JsonNode jsonNode = Json.toJson(YTVideosList);
+            JsonNode result = Json.toJson(YTVideosList);
+            ObjectNode jsonNode = Json.newObject();;
+            jsonNode.put("path","profile");
+            jsonNode.put("channel",channelName);
+            jsonNode.put("youTubeVideosList",result);
             System.out.println("hello.  ----"+jsonNode.toString());
             return ok(jsonNode);
         });
@@ -144,18 +150,30 @@ public class SearchController  extends Controller{
                 return badRequest("videoId/ hashTag not provided");
             }
             List<YouTubeVideo> YTVideosList = new ArrayList<>();
+            System.out.println("inside tag call srinu---> "+ type+" ---- "+id+" "+type.equals("tags"));
             try {
-                if(type == "tag"){
+                if(type.equals("tags")){
                     YTVideosList = youTubeSearch.Search(id,"tags");
-                    JsonNode jsonNode = Json.toJson(YTVideosList);
+                    JsonNode result = Json.toJson(YTVideosList);
+                    System.out.println("result in tags.  ----"+result.toString());
+                    ObjectNode jsonNode = Json.newObject();;
+                    jsonNode.put("path","tags");
+                    jsonNode.put("youTubeVideosList",result);
                     System.out.println("hello.  ----"+jsonNode.toString());
                     return ok(jsonNode);
-                } else {
+                } else if(type.equals("hashTag")){
                     YTVideosList = youTubeSearch.Search(id,"hashTag");
-                    JsonNode jsonNode = Json.toJson(YTVideosList);
+                    JsonNode result = Json.toJson(YTVideosList);
+                    System.out.println("result in hashtag.  ----"+result.toString());
+                    ObjectNode jsonNode = Json.newObject();;
+                    jsonNode.put("path","hashTag");
+                    jsonNode.put("youTubeVideosList",result);
                     System.out.println("hello.  ----"+jsonNode.toString());
                     return ok(jsonNode);
                 }
+                ObjectNode jsonNode = Json.newObject();;
+                jsonNode.put("path","tags");
+                return ok(jsonNode);
             } catch (Exception e) {
                 return badRequest("Invalid API Key");
             }

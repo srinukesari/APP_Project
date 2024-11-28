@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YT Lytics</title>
+    <style>
+        .search-item-video {
+            margin: 10px 0; /* Control vertical spacing between video items */
+            font-size: 14px; /* Optional: Control the font size */
+        }
+
+        .search-item h3 {
+            font-size: 16px; /* Adjust size for the search term header */
+            margin-bottom: 20px; /* Ensure some space below the header */
+            font-weight: bold;
+        }
+
+    </style>
 </head>
 <body>
 <h1>YT Lytics!!!</h1>
@@ -19,14 +32,22 @@
     // Establish WebSocket connection
     const socket = new WebSocket("ws://localhost:9000/ws");
 
-    // Handle WebSocket events
     socket.onopen = () => {
         console.log("WebSocket connection established.");
+        sessionStorage.setItem('sessionData', JSON.stringify([]));
     };
 
     socket.onmessage = (event) => {
-        console.log("event came ----->",event?.data);
-        prependResponseToWebPage(event?.data);
+        const jsonData = JSON.parse(event?.data);
+        if(jsonData?.path == "search"){
+            addResponsetoSession(jsonData);
+        }else if(jsonData?.path == "profile" || jsonData?.path == "hashTag"){
+            renderProfileOrHashTagPage(jsonData);
+        }else if(jsonData?.path == "tags"){
+            renderTagPage(jsonData);
+        }else{
+            console.log("Invalid Json Response from Server Socket",jsonData);
+        }
     };
 
     socket.onerror = (error) => {
@@ -40,46 +61,130 @@
     document.getElementById("sendButton").addEventListener("click", () => {
         const input = document.getElementById("inputMessage").value.trim();
         if (input) {
-            const message = {
-                path: "search",
-                key: input,
-            };
-            // Send JSON stringified message over WebSocket
-            socket.send(JSON.stringify(message));
+            sendSocketMessage("search", input);
+
+            let sessionData = JSON.parse(sessionStorage.getItem('sessionData')) || [];
+            let jsonData = {
+                "searchTerms":input
+            }
+            sessionData.unshift(jsonData);
+            sessionStorage.setItem('sessionData',JSON.stringify(sessionData));
         } else {
             alert("Please enter a message.");
         }
     });
 
-    function prependResponseToWebPage(jsonData) {
-        const container = document.getElementById("response");
+    function addResponsetoSession(jsonData) {
+        let sessionData = JSON.parse(sessionStorage.getItem('sessionData')) || [];
+        let newSearchTerm = jsonData?.searchTerms;
+        let existingIndex = sessionData?.findIndex(item => item?.searchTerms === newSearchTerm);
 
-        // Create a new element to hold the JSON data
-        const jsonElement = document.createElement("div");
-        jsonElement.className = "search-item"; // Add a class for styling if needed
+        if (existingIndex > -1) {
+            sessionData[existingIndex] = jsonData;
+        } else {
+            sessionData.unshift(jsonData);
+        }
 
-        jsonData = JSON.parse(jsonData);
+        sessionStorage.setItem('sessionData',JSON.stringify(sessionData));
 
-        jsonElement.innerHTML = `
-            <h3>SearchTerm: ${jsonData?.searchTerms}</h3>
-            <p>averageFleschReadingEaseScore: ${jsonData?.averageFleschReadingEaseScore}</p>
-            <p>averageFleschKincaidGradeLevel: ${jsonData?.averageFleschKincaidGradeLevel}</p>
-        `;
-
-        const ytVideoList = jsonData?.youTubeVideosList || [];
-        ytVideoList?.forEach((item) => {
-            const ytVideoDiv = document.createElement("div");
-            ytVideoDiv.className = "search-item-video";
-
-            ytVideoDiv.innerHTML = `
-                <p>Title: ${item?.title}</p>
-                <p>Channel: ${item?.channel}</p>
-            `;
-            jsonElement.appendChild(ytVideoDiv);
-        });
-        container.prepend(jsonElement);
+        reRender();
     }
 
+    function sendSocketMessage(path, key){
+        const message = {
+            path: path,
+            key: key,
+        };
+        console.log("chcek msg---->"+JSON.stringify(message));
+        socket.send(JSON.stringify(message));
+    }
+
+    document.getElementById('response').addEventListener('click', function(event) {
+        if (event.target && event.target.classList.contains('channel-link')) {
+            const channel = event.target.textContent;
+            console.log('Channel clicked: ', channel);
+            sendSocketMessage("profile",channel);
+        }
+
+        if (event.target && event.target.classList.contains('tags-link')) {
+            const videoId = event.target.dataset.videoId;
+            console.log('tags clicked: ', videoId);
+            sendSocketMessage("tags",videoId);
+        }
+    });
+
+    function ytVideoListDiv(div,ytVideoList){
+        ytVideoList?.forEach((video,index) => {
+                const ytVideoDiv = document.createElement("div");
+                ytVideoDiv.className = "search-item-video";
+
+                let description = video?.description?.length > 200 ? video.description.substring(0,200) + "..." : video.description;
+
+                ytVideoDiv.innerHTML = `
+                    ${index + 1}. Title: <a href="${video.htmlLinkforTitle}" target="_blank">${video.title}</a>,`
+                    +
+                    `Channel: <a href="javascript:void(0);" class="channel-link">${video.channel}</a>, `
+                    +
+                    `Description: ${description} `
+                    +
+                    `FleschReadingEaseScore : ${video.fleschReadingEaseScore} `
+                    +
+                    `FleschKincaidGradeLevel : ${video.fleschKincaidGradeLevel} `
+                    +
+                    `<a href="javascript:void(0);" data-video-id=${video.videoId} class="tags-link">Tags</a>`
+                ;
+                div.appendChild(ytVideoDiv);
+        });
+        return div;
+    }
+
+    function renderProfileOrHashTagPage(item){
+        let searchResultsList = document.createElement("div");
+        const ytVideoList = item?.youTubeVideosList || [];
+        searchResultsList = ytVideoListDiv(searchResultsList, ytVideoList);
+        document.body.innerHTML = searchResultsList.innerHTML;
+    }
+
+    function renderTagPage(item){
+        let searchResultsList = document.createElement("div");
+        const ytVideoList = item?.youTubeVideosList || [];
+        ytVideoList?.forEach((video,index) => {
+                const ytVideoDiv = document.createElement("div");
+                ytVideoDiv.className = "search-item-video";
+
+                let description = video?.description?.length > 200 ? video.description.substring(0,200) + "..." : video.description;
+
+                ytVideoDiv.innerHTML = `
+                    ${index + 1}. Title: <a href="${video.htmlLinkforTitle}">${video.title}</a>,`
+                    +
+                    `Channel: <a href="javascript:void(0);" class="channel-link">${video.channel}</a>, `
+                    +
+                    `Description: ${description} `
+                    +
+                    `<a href="javascript:void(0);" data-tag-id=${video.videoId} class="tags-link">Tags</a>`
+                ;
+                searchResultsList.appendChild(ytVideoDiv);
+        });
+        document.body.innerHTML = searchResultsList.innerHTML;
+    }
+
+    function reRender(){
+        let sessionData = JSON.parse(sessionStorage.getItem('sessionData')) || [];
+        const searchResultsList = document.createElement("div");
+        sessionData?.forEach(item => {
+            let searchItem = document.createElement("div");
+            searchItem.className = "search-item";
+
+            searchItem.innerHTML = `
+                <h3>SearchTerm: ${item?.searchTerms} | averageFleschReadingEaseScore: ${item?.averageFleschReadingEaseScore} | averageFleschKincaidGradeLevel: ${item?.averageFleschKincaidGradeLevel}</h3>
+            `;
+
+            const ytVideoList = item?.youTubeVideosList || [];
+            searchItem = ytVideoListDiv(searchItem, ytVideoList);
+            searchResultsList.appendChild(searchItem)
+        });
+        document.getElementById("response").innerHTML = searchResultsList.innerHTML;
+    }
 </script>
 </body>
 </html>
