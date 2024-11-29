@@ -1,69 +1,101 @@
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
-import akka.testkit.javadsl.TestKit;
-import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
-import play.libs.Json;
-import java.util.ArrayList;
-import java.util.List;
-import static org.junit.Assert.assertEquals;
-import actors.*;
-import controllers.*;
-import models.*;
+import org.mockito.*;
+import org.apache.pekko.actor.ActorRef;
+import org.apache.pekko.actor.ActorSystem;
+import org.apache.pekko.testkit.javadsl.TestKit;
 import org.apache.pekko.stream.Materializer;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import models.YouTubeVideo;
+import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import play.libs.Json;
+import java.time.Duration;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.*;
+
+import models.*;
+import controllers.*;
+import actors.*;
 
 public class MainActorTest {
 
-    private static ActorSystem system;
+    private ActorSystem system;
+    private Materializer materializer;
 
     @Mock
-    private YouTubeSearch youTubeSearch;  
+    private YouTubeSearch mockYouTubeSearch;  // Mock YouTubeSearch
 
-    @BeforeClass
-    public static void setup() {
-        system = ActorSystem.create("MainActorTestSystem");
-    }
-
-    @AfterClass
-    public static void teardown() {
-        TestKit.shutdownActorSystem(system);
-    }
+    private ActorRef mainActor;
 
     @Before
-    public void init() {
-        MockitoAnnotations.initMocks(this);
+    public void setUp() {
+        system = ActorSystem.create();
+        materializer = Materializer.createMaterializer(system);
+        MockitoAnnotations.openMocks(this); // Initialize mocks
+        mainActor = system.actorOf(MainActor.props(materializer, mockYouTubeSearch));
     }
 
     @Test
-    public void testSearchFunctionality() {
-        // Create mock video data
-        List<YouTubeVideo> mockVideos = new ArrayList<>();
-        mockVideos.add(new YouTubeVideo("Id1", "title1", "TestChannel", "", "thumbnail1", null));
-        mockVideos.add(new YouTubeVideo("Id2", "title2", "TestChannel2", "", "thumbnail2", null));
+    public void testMainActorWithUnknownRequest() throws Exception {
+        TestKit probe = new TestKit(system);
 
-        try{
-            Mockito.when(youTubeSearch.Search("testSearchKey", "home")).thenReturn(mockVideos);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Materializer mockMaterializer = Mockito.mock(Materializer.class);
-        ActorRef mainActor = system.actorOf(Props.create(MainActor.class, mockMaterializer, youTubeSearch));
-        new TestKit(system) {{
-            JsonNode inputJson = Json.newObject()
-                    .put("path", "search")
-                    .put("key", "testSearchKey");
+        JsonNode requestMsg = Json.newObject().put("path", "unknown").put("key", "testKey");
+        mainActor.tell(requestMsg, probe.getRef());
 
-            mainActor.tell(inputJson, getRef());
-            JsonNode expectedResponse = Json.toJson(mockVideos);
-            JsonNode actualResponse = expectMsgClass(JsonNode.class);
-            assertEquals(expectedResponse, actualResponse);
-        }};
+        JsonNode expectedResponse = Json.toJson("Unknown request type");
+        probe.expectMsgEquals(Duration.ofSeconds(5), expectedResponse);
+    }
+
+//    @Test
+//    public void testMainActorWithSearchRequest() throws Exception {
+//        TestKit probe = new TestKit(system);
+//        List<YouTubeVideo> response = new ArrayList<>();
+//        response.add(new YouTubeVideo("new Id for sri", "Test Video", "Test Channel", "", "thumbnail1", null));
+//        Mockito.when(mockYouTubeSearch.Search("bahubali", "home"))
+//                .thenReturn(response);
+//
+//        JsonNode requestMsg = Json.newObject().put("path", "search").put("key", "bahubali");
+//        mainActor.tell(requestMsg, probe.getRef());
+//
+//        JsonNode expectedResponse = Json.toJson("Unknown request type");
+//        probe.expectMsgEquals(Duration.ofSeconds(5), expectedResponse);
+//    }
+
+    @Test
+    public void testMainActorWithTagRequest() throws Exception {
+        TestKit probe = new TestKit(system);
+        List<YouTubeVideo> response = new ArrayList<>();
+        response.add(new YouTubeVideo("new Id", "Test Video", "Test Channel", "", "thumbnail1", null));
+        Mockito.when(mockYouTubeSearch.Search("SampleVideoId", "tags"))
+                .thenReturn(response);
+
+        JsonNode requestMsg = Json.newObject().put("path", "tags").put("key", "SampleVideoId");
+        mainActor.tell(requestMsg, probe.getRef());
+
+        ObjectNode expectedResponse = Json.newObject();
+        JsonNode jsonResponseObject = Json.toJson(response);
+        expectedResponse.put("path","tags");
+        expectedResponse.put("youTubeVideosList",jsonResponseObject);
+        probe.expectMsgEquals(Duration.ofSeconds(5), expectedResponse);
+    }
+
+    @Test
+    public void testMainActorWithHashTagRequest() throws Exception {
+        TestKit probe = new TestKit(system);
+        List<YouTubeVideo> response = new ArrayList<>();
+        response.add(new YouTubeVideo("new Id", "Test Video", "Test Channel", "", "thumbnail1", null));
+        Mockito.when(mockYouTubeSearch.Search("#SampleHashTag", "hashTag"))
+                .thenReturn(response);
+
+        JsonNode requestMsg = Json.newObject().put("path", "hashTag").put("key", "#SampleHashTag");
+        mainActor.tell(requestMsg, probe.getRef());
+
+        ObjectNode expectedResponse = Json.newObject();
+        JsonNode jsonResponseObject = Json.toJson(response);
+        expectedResponse.put("path","hashTag");
+        expectedResponse.put("youTubeVideosList",jsonResponseObject);
+        probe.expectMsgEquals(Duration.ofSeconds(5), expectedResponse);
     }
 }

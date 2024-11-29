@@ -1,16 +1,16 @@
 package controllers;
 import actors.MainActor;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
-import akka.pattern.Patterns;
-import akka.stream.javadsl.Sink;
-import akka.stream.javadsl.Source;
+import org.apache.pekko.actor.ActorRef;
+import org.apache.pekko.actor.ActorSystem;
+import org.apache.pekko.actor.Props;
+import org.apache.pekko.pattern.Patterns;
+import org.apache.pekko.stream.javadsl.Sink;
+import org.apache.pekko.stream.javadsl.Source;
 import org.apache.pekko.stream.javadsl.Flow;
 import org.apache.pekko.stream.Materializer;
 
-import akka.util.Timeout;
+import org.apache.pekko.util.Timeout;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -57,7 +57,7 @@ public class WebSocketController extends Controller {
 
     private Flow<String, String, ?> createWebSocketFlow(ActorRef actorRef) {
         return Flow.<String>create()
-                .keepAlive(Duration.ofSeconds(10), () -> "ping")
+                .keepAlive(Duration.ofSeconds(30), () -> "ping")
                 .mapAsync(1, message -> {
                         System.out.println("incomming msg -----> "+message);
                         if ("ping".equals(message)) {
@@ -74,9 +74,7 @@ public class WebSocketController extends Controller {
     }
 
     public CompletionStage<JsonNode> handleMessage(JsonNode jsonNode, ActorRef mainActor) {
-        // Timeout timeout = Timeout.create(Duration.ofSeconds(20));
-        Timeout timeout = Timeout.create(Duration.ofSeconds(60));
-
+        Timeout timeout = Timeout.create(Duration.ofSeconds(20));
 
         Future<Object> scalaFuture = Patterns.ask(mainActor, jsonNode, timeout);
 

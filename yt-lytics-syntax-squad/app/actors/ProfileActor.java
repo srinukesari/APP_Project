@@ -1,6 +1,7 @@
 package actors;
 
-import akka.actor.AbstractActor;
+import org.apache.pekko.actor.AbstractActor;
+
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
 

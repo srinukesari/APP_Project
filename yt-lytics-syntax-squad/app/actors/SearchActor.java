@@ -1,8 +1,11 @@
 package actors;
 
-import akka.actor.AbstractActor;
+import org.apache.pekko.actor.AbstractActor;
+
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
+import org.apache.pekko.actor.Props;
+
 
 import com.fasterxml.jackson.databind.JsonNode;
 import play.libs.Json;
@@ -23,6 +26,11 @@ public class SearchActor extends AbstractActor {
     public SearchActor(Materializer materializer, YouTubeSearch youTubeSearch) {
         this.materializer = materializer;
         this.youTubeSearch = youTubeSearch;
+    }
+
+    // Method to create Props for the MainActor
+    public static Props props(Materializer materializer,YouTubeSearch youTubeSearch) {
+        return Props.create(SearchActor.class, materializer, youTubeSearch);
     }
 
     @Override

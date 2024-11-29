@@ -63,10 +63,14 @@ public class SearchController  extends Controller{
                 List<YouTubeVideo> YTVideosList = new ArrayList<>();
                 List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
                 try {
+                    System.out.println("check the inside func sri");
                     YTVideosList = youTubeSearch.Search(searchKey, "home");
+                    System.out.println("check the list here-------"+ YTVideosList);
                     List<String> videoIds = new ArrayList<>();
                     for (YouTubeVideo video : YTVideosList) {
                         videoIds.add(video.getVideoId());
+                        System.out.println("check the video Id-------"+ video.getVideoId());
+
                     }
                     YTVideosList = youTubeSearch.fetchFullDescriptions(videoIds);
                     MorestatsVideosList.addAll(YTVideosList);
