@@ -5,27 +5,130 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YT Lytics</title>
     <style>
-        .search-item-video {
-            margin: 10px 0; /* Control vertical spacing between video items */
-            font-size: 14px; /* Optional: Control the font size */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
         }
 
-        .search-item h3 {
-            font-size: 16px; /* Adjust size for the search term header */
-            margin-bottom: 20px; /* Ensure some space below the header */
-            font-weight: bold;
+        h1 {
+            text-align: center;
+            color: #333;
         }
+
+        /* Form styling */
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Video item styles */
+        .search-item-video {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            /* border-radius: 8px; */
+            /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+        }
+
+        .search-item-video h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .search-item-video .description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .search-item-video .metadata {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .search-item-video a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .search-item-video a:hover {
+            text-decoration: underline;
+        }
+
+        .thumbnail-container {
+            /* flex: 1; */
+            max-width: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .thumbnail-container img {
+            max-width: 100%;
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+        }
+        table {
+            width: 50%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
 
     </style>
 </head>
 <body>
-<h1>YT Lytics!!!</h1>
+<h1>YT Lytics</h1>
 <form id="socketForm">
     <input type="text" id="inputMessage" placeholder="Type your Search here" required />
     <button type="button" id="sendButton">Go</button>
 </form>
 <div id="output">
-    <h2>Server Response:</h2>
+    <!-- <h2>Server Response:</h2> -->
     <pre id="response"></pre>
 </div>
 <script>
@@ -39,12 +142,20 @@
 
     socket.onmessage = (event) => {
         const jsonData = JSON.parse(event?.data);
+        // console.log(jsonData)
+        if(jsonData?.error) {
+            console.error("Error from backend:", jsonData.error);
+            // Display the error message in the UI, or handle as necessary
+        }
         if(jsonData?.path == "search"){
             addResponsetoSession(jsonData);
         }else if(jsonData?.path == "profile" || jsonData?.path == "hashTag"){
             renderProfileOrHashTagPage(jsonData);
         }else if(jsonData?.path == "tags"){
             renderTagPage(jsonData);
+        }else if(jsonData?.path === "stats") {
+            console.log("Received word stats data:", jsonData);
+            renderWordStatsPage(jsonData);
         }else{
             console.log("Invalid Json Response from Server Socket",jsonData);
         }
@@ -111,33 +222,44 @@
             console.log('tags clicked: ', videoId);
             sendSocketMessage("tags",videoId);
         }
+        if (event.target && event.target.classList.contains('wordstats-link')) {
+            const searchTerms = event.target.closest('.search-item').querySelector('h3').textContent.split('|')[0].replace('SearchTerm: ', '').trim();
+            console.log("Requesting word stats for:", searchTerms);
+            sendSocketMessage("stats", searchTerms); // Request word stats from the server
+        }
     });
 
-    function ytVideoListDiv(div,ytVideoList){
-        ytVideoList?.forEach((video,index) => {
-                const ytVideoDiv = document.createElement("div");
-                ytVideoDiv.className = "search-item-video";
+    function ytVideoListDiv(div, ytVideoList) {
+        ytVideoList?.forEach((video, index) => {
+            const ytVideoDiv = document.createElement("div");
+            ytVideoDiv.className = "search-item-video";
 
-                let description = video?.description?.length > 200 ? video.description.substring(0,200) + "..." : video.description;
+            let description = video?.description?.length > 200 ? video.description.substring(0, 200) + "..." : video.description;
 
-                ytVideoDiv.innerHTML = `
-                    ${index + 1}. Title: <a href="${video.htmlLinkforTitle}" target="_blank">${video.title}</a>,`
-                    +
-                    `Channel: <a href="javascript:void(0);" class="channel-link">${video.channel}</a>, `
-                    +
-                    `Description: ${description} `
-                    +
-                    `FleschReadingEaseScore : ${video.fleschReadingEaseScore} `
-                    +
-                    `FleschKincaidGradeLevel : ${video.fleschKincaidGradeLevel} `
-                    +
-                    `<a href="javascript:void(0);" data-video-id=${video.videoId} class="tags-link">Tags</a>`
-                ;
-                div.appendChild(ytVideoDiv);
+            ytVideoDiv.innerHTML = `
+                <div class="info">
+                    <h3>${index + 1}. <a href="${video.htmlLinkforTitle}" target="_blank">${video.title}</a></h3>
+                    <div class="description">${description}
+                        Channel: <a href="javascript:void(0);" class="channel-link">${video.channel}</a> | 
+                        Flesch Reading Ease: ${video.fleschReadingEaseScore} | 
+                        Flesch-Kincaid Grade Level: ${video.fleschKincaidGradeLevel}
+                        </div>
+                    <div class="metadata">
+                        
+                    </div>
+                    <a href="javascript:void(0);" data-video-id="${video.videoId}" class="tags-link">View Tags</a>
+                </div>
+                <div class="thumbnail-container">
+                    <a href="${video.htmlLinkforTitle}" target="_blank">
+                        <img src="${video.thumbnailUrl}" alt="${video.title} Thumbnail">
+                    </a>
+                </div>
+            `;
+            div.appendChild(ytVideoDiv);
         });
         return div;
     }
-
+    
     function renderProfileOrHashTagPage(item){
         let searchResultsList = document.createElement("div");
         const ytVideoList = item?.youTubeVideosList || [];
@@ -176,7 +298,7 @@
             searchItem.className = "search-item";
 
             searchItem.innerHTML = `
-                <h3>SearchTerm: ${item?.searchTerms} | averageFleschReadingEaseScore: ${item?.averageFleschReadingEaseScore} | averageFleschKincaidGradeLevel: ${item?.averageFleschKincaidGradeLevel}</h3>
+                <h3>SearchTerm: ${item?.searchTerms} | averageFleschReadingEaseScore: ${item?.averageFleschReadingEaseScore} | averageFleschKincaidGradeLevel: ${item?.averageFleschKincaidGradeLevel} | <a href="javascript:void(0);" class="wordstats-link">Morestats</a> </h3> 
             `;
 
             const ytVideoList = item?.youTubeVideosList || [];
@@ -185,6 +307,50 @@
         });
         document.getElementById("response").innerHTML = searchResultsList.innerHTML;
     }
+    // function simulateWordStatsData() {
+    //     // Mocking the word stats data
+    //     const mockStatsData = {
+    //         path: "stats",
+    //         wordStats: [
+    //             { word: "example", frequency: 10 },
+    //             { word: "test", frequency: 7 },
+    //             { word: "hello", frequency: 5 },
+    //             { word: "world", frequency: 8 }
+    //         ]
+    //     };
+
+    //     // Manually trigger the socket.onmessage event to simulate receiving the data
+    //     socket.onmessage({ data: JSON.stringify(mockStatsData) });
+    // }
+
+    function renderWordStatsPage(item) {
+        const wordStats = item?.wordStats || [];
+        let table = `
+        <h2>Word Stats</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Word</th>
+                    <th>Frequency</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+
+        wordStats.forEach(stat => {
+            table += `
+                <tr>
+                    <td>${stat.word}</td>
+                    <td>${stat.frequency}</td>
+                </tr>
+            `;
+        });
+
+        table += '</tbody></table>';
+        document.body.innerHTML = table;
+        // simulateWordStatsData();
+    }
+
 </script>
 </body>
 </html>

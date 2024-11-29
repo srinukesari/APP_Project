@@ -14,7 +14,16 @@ public class MoreStats {
     }
 
     public Map<String, Long> getWordStatistics() {
-        return youTubeVideosList.stream()
+        // return youTubeVideosList.stream()
+        //         .flatMap(video -> Arrays.stream((video.getTitle() + " " + video.getDescription()).split("\\W+")))
+        //         .filter(word -> !word.isEmpty())
+        //         .map(String::toLowerCase)
+        //         .collect(Collectors.groupingBy(word -> word, Collectors.counting()))
+        //         .entrySet()
+        //         .stream()
+        //         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+        //         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        Map<String, Long> wordStats = youTubeVideosList.stream()
                 .flatMap(video -> Arrays.stream((video.getTitle() + " " + video.getDescription()).split("\\W+")))
                 .filter(word -> !word.isEmpty())
                 .map(String::toLowerCase)
@@ -23,5 +32,10 @@ public class MoreStats {
                 .stream()
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
+        // Print the word statistics
+        wordStats.forEach((word, count) -> System.out.println(word + ": " + count));
+
+        return wordStats;
     }
 }

@@ -57,7 +57,7 @@ public class WebSocketController extends Controller {
 
     private Flow<String, String, ?> createWebSocketFlow(ActorRef actorRef) {
         return Flow.<String>create()
-                .keepAlive(Duration.ofSeconds(120), () -> "ping")
+                .keepAlive(Duration.ofSeconds(10), () -> "ping")
                 .mapAsync(1, message -> {
                         System.out.println("incomming msg -----> "+message);
                         if ("ping".equals(message)) {
@@ -74,7 +74,9 @@ public class WebSocketController extends Controller {
     }
 
     public CompletionStage<JsonNode> handleMessage(JsonNode jsonNode, ActorRef mainActor) {
-        Timeout timeout = Timeout.create(Duration.ofSeconds(20));
+        // Timeout timeout = Timeout.create(Duration.ofSeconds(20));
+        Timeout timeout = Timeout.create(Duration.ofSeconds(60));
+
 
         Future<Object> scalaFuture = Patterns.ask(mainActor, jsonNode, timeout);
 

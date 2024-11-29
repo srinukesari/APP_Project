@@ -90,6 +90,8 @@ public class SearchController  extends Controller{
                 displayResults.add(0, sr);
                 morestatsResults.add(0, sr1);
 
+                System.out.println("Morestats" + morestatsResults);
+
                 JsonNode jsonNode = Json.toJson(sr);
 //                System.out.println("hello.  ----"+jsonNode.toString());
                 ObjectNode objectNode = (ObjectNode) jsonNode;
@@ -199,10 +201,15 @@ public class SearchController  extends Controller{
                 List<YouTubeVideo> videos = searchResultsOpt.get().getYouTubeVideosList();
                 MoreStats stats = new MoreStats(searchTerms, videos);
                 Map<String, Long> wordStats = stats.getWordStatistics();
+                JsonNode jsonNode = Json.toJson(wordStats);
+//                System.out.println("hello.  ----"+jsonNode.toString());
+                ObjectNode objectNode = (ObjectNode) jsonNode;
+                objectNode.put("path","stats");
+                return ok(Json.toJson(objectNode));
 
-                return ok(views.html.wordstats.render(wordStats));
+                // return ok(views.html.wordstats.render(wordStats));
             } else {
-                return badRequest("No search results found for the given terms.");
+                return badRequest(Json.toJson(Map.of("error", "No search results found in displaystats function.")));
             }
         });
     }
