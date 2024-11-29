@@ -7,13 +7,15 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #f4f4f9;
         }
 
         h1 {
             text-align: center;
             color: #333;
+            margin-top: 20px;
         }
 
         /* Form styling */
@@ -46,59 +48,114 @@
             background-color: #0056b3;
         }
 
-        /* Video item styles */
-        .search-item-video {
-            display: flex;
-            flex-direction: column;
-            background-color: white;
-            padding: 15px;
-            margin-bottom: 20px;
-            /* border-radius: 8px; */
-            /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
+        
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
         }
 
-        .search-item-video h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #333;
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border: 1px solid black;
         }
 
-        .search-item-video .description {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 10px;
+        tr:nth-child(even) {
+            background-color: #D6EEEE;
         }
 
-        .search-item-video .metadata {
-            font-size: 14px;
-            color: #777;
-            margin-bottom: 10px;
+        tr {
+            border-bottom: 1px solid #ddd;
         }
+        .video-item {
+        /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+        transition: box-shadow 0.3s ease;
+        display: flex;
+        /* align-items: flex-start; */
+        padding: 15px;
+        border-radius:5px;
+        margin-left:0px;
+    }
 
-        .search-item-video a {
-            text-decoration: none;
-            color: #007bff;
-        }
+    .search-results .video-item + .video-item {
+        margin-top: 0;
+        padding-top: 5px;
+    }
 
-        .search-item-video a:hover {
-            text-decoration: underline;
-        }
+    .video-details {
+        flex: 2;
+        padding-right: 20px;
+    }
 
-        .thumbnail-container {
-            /* flex: 1; */
-            max-width: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    .video-details-tagpage{
+        flex: 2;
+        padding: 30px 20px;
+    }
+    .tag-list-tagpage{
+        margin:5px 50px;
+    }
+    .video-details strong {
+        color: #333;
+    }
 
-        .thumbnail-container img {
+    .video-details a {
+        /* color: #1a0dab; */
+        text-decoration: none;
+    }
+    /* 
+    .video-details a:hover {
+        text-decoration: underline;
+    } */
+
+    .video-details .title-description {
+        font-style: italic;
+        color: #555;
+    }
+
+    .video-details .grade-level {
+        font-size: 0.9em;
+        color: #888;
+        margin-top: 5px;
+    }
+
+    .video-thumbnail-tagpage a img{
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 500px;
+        border-radius: 10px;
+    }
+    .video-thumbnail {
+        flex: 1;
+        max-width: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .video-thumbnail img {
             max-width: 100%;
             height: 100%;
             width: 100%;
-            border-radius: 10px;
+            border-radius: 10px;   
+    }
+    .video-item {
+        display: flex;
+        justify-content: flex-start;  /* Ensure content starts from left */
+        align-items: flex-start;      /* Align items at the top of the container */
+        padding: 15px;
+        margin-left: 0;               /* Remove margin */
+    }
+    #output {
+            margin: 0px;
+            padding: 0px;
+            
         }
-        table {
+
+        /* table {
             width: 50%;
             margin: 20px 0;
             border-collapse: collapse;
@@ -116,8 +173,7 @@
 
         tr:nth-child(even) {
             background-color: #f9f9f9;
-        }
-
+        } */
 
     </style>
 </head>
@@ -131,18 +187,18 @@
     <!-- <h2>Server Response:</h2> -->
     <pre id="response"></pre>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     // Establish WebSocket connection
     const socket = new WebSocket("ws://localhost:9000/ws");
-
+    console.log("hii");
     socket.onopen = () => {
         console.log("WebSocket connection established.");
         sessionStorage.setItem('sessionData', JSON.stringify([]));
     };
 
     socket.onmessage = (event) => {
-        if(event?.data == "HeartBeat!!!") return;
-
         const jsonData = JSON.parse(event?.data);
         // console.log(jsonData)
         if(jsonData?.error) {
@@ -241,28 +297,27 @@
     function ytVideoListDiv(div, ytVideoList) {
         ytVideoList?.forEach((video, index) => {
             const ytVideoDiv = document.createElement("div");
-            ytVideoDiv.className = "search-item-video";
+            ytVideoDiv.className = "video-item";
 
             let description = video?.description?.length > 200 ? video.description.substring(0, 200) + "..." : video.description;
 
             ytVideoDiv.innerHTML = `
-                <div class="info">
-                    <h3>${index + 1}. <a href="${video.htmlLinkforTitle}" target="_blank">${video.title}</a></h3>
-                    <div class="description">${description}
-                        Channel: <a href="javascript:void(0);" class="channel-link">${video.channel}</a> | 
+                <div class="video-details">
+                    ${index + 1}. <strong>Title: </strong> <a href="${video.htmlLinkforTitle}" target="_blank">${video.title}</a></h3>
+                        
+                        <strong>Channel: </strong>  <a href="javascript:void(0);" class="channel-link">${video.channel}</a> | 
+                        <strong>Description: </strong> <span class "description">${description} </span> |
                         Flesch Reading Ease: ${video.fleschReadingEaseScore} | 
                         Flesch-Kincaid Grade Level: ${video.fleschKincaidGradeLevel}
-                        </div>
-                    <div class="metadata">
-                        
-                    </div>
                     <a href="javascript:void(0);" data-video-id="${video.videoId}" class="tags-link">View Tags</a>
+                    
                 </div>
-                <div class="thumbnail-container">
+                <div class="video-thumbnail">
                     <a href="${video.htmlLinkforTitle}" target="_blank">
                         <img src="${video.thumbnailUrl}" alt="${video.title} Thumbnail">
                     </a>
                 </div>
+                
             `;
             div.appendChild(ytVideoDiv);
         });
@@ -322,48 +377,71 @@
         });
         document.getElementById("response").innerHTML = searchResultsList.innerHTML;
     }
-    // function simulateWordStatsData() {
-    //     // Mocking the word stats data
-    //     const mockStatsData = {
-    //         path: "stats",
-    //         wordStats: [
-    //             { word: "example", frequency: 10 },
-    //             { word: "test", frequency: 7 },
-    //             { word: "hello", frequency: 5 },
-    //             { word: "world", frequency: 8 }
-    //         ]
-    //     };
-
-    //     // Manually trigger the socket.onmessage event to simulate receiving the data
-    //     socket.onmessage({ data: JSON.stringify(mockStatsData) });
-    // }
 
     function renderWordStatsPage(item) {
-        const wordStats = item?.wordStats || [];
+        const wordStats = item || {};  
+        let orderedWordStats = Object.entries(wordStats);
+        orderedWordStats.sort((a, b) => b[1] - a[1]);
         let table = `
-        <h2>Word Stats</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Word</th>
-                    <th>Frequency</th>
-                </tr>
-            </thead>
-            <tbody>
+            <h2>Word Stats</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Word</th>
+                        <th>Frequency</th>
+                    </tr>
+                </thead>
+                <tbody>
         `;
 
-        wordStats.forEach(stat => {
-            table += `
-                <tr>
-                    <td>${stat.word}</td>
-                    <td>${stat.frequency}</td>
-                </tr>
-            `;
+        orderedWordStats.forEach(([word, frequency]) =>  {
+            if (word !== "path") {
+                table += `
+                    <tr>
+                        <td>${word}</td>
+                        <td>${frequency}</td>
+                    </tr>
+                `;
+            }
         });
 
         table += '</tbody></table>';
-        document.body.innerHTML = table;
-        // simulateWordStatsData();
+        // document.body.innerHTML = table ;
+        const words = orderedWordStats.map(([word]) => word);
+        const frequencies = orderedWordStats.map(([_, frequency]) => frequency);
+
+        // Render the table and chart into the body
+        document.body.innerHTML = `
+            <canvas id="wordStatsChart" width="400" height="200"></canvas>
+        ` + table ;
+        
+        // After the table is rendered, initialize the Chart.js chart
+        initChart(words, frequencies);
+    }
+    function initChart(words, frequencies) {
+        const ctx = document.getElementById("wordStatsChart").getContext("2d");
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: words,
+                datasets: [{
+                    label: 'Word Frequency',
+                    data: frequencies,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
     }
 
 </script>

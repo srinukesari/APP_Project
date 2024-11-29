@@ -8,7 +8,14 @@ import java.io.UnsupportedEncodingException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/* @author: team */
+/**
+ * The `YouTubeVideo` class represents a YouTube video with associated details such as 
+ * video ID, title, channel, description, tags, and readability scores based on the description.
+ * It provides methods to calculate readability scores (Flesch-Kincaid Grade Level and Flesch Reading Ease)
+ * and to generate HTML links for the video, profile, and related tags.
+ *
+ * @author team
+ */
 public class YouTubeVideo{
     private static final int DESCRIPTION_PREVIEW_LENGTH = 100;
     private String videoId;

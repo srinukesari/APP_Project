@@ -10,8 +10,25 @@ import play.mvc.Result;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-
+/**
+ * A utility class for converting HTTP response bodies to JSON objects.
+ * This class contains methods to asynchronously convert an HTTP entity's body 
+ * to a JsonNode using the Akka Streams materializer for data processing.
+ * @author srinu.kesari
+ */
 public class ConvertData {
+    /**
+     * Converts the body of a Result object (which is an HTTP response) 
+     * to a JsonNode. The conversion is done asynchronously and 
+     * the result is returned wrapped in a CompletableFuture.
+     * 
+     * @param result The Result containing the HTTP entity with the response body.
+     * @param materializer The Materializer used to handle the stream of the HTTP entity.
+     * @return A CompletableFuture that will be completed with the parsed JsonNode.
+     *         If an error occurs during parsing, it returns a JsonNode with an error message.
+     * 
+     * @throws Exception if there is an error while reading the response body or parsing the JSON.
+     */
     public static CompletableFuture<JsonNode> convertHttpEntityToJsonNode
             (Result result, Materializer materializer) {
         try {

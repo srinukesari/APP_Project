@@ -22,6 +22,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /* @author: Team */
+/**
+ * The SearchController class handles requests related to searching for YouTube videos,
+ * fetching video profiles, calculating video statistics, and displaying search results.
+ * It interacts with the YouTube API to perform video searches and computes various metrics,
+ * such as the Flesch-Kincaid grade level and Flesch reading ease score for video descriptions.
+ */
 public class SearchController  extends Controller{
 
     private final YouTubeSearch youTubeSearch;
@@ -46,14 +52,14 @@ public class SearchController  extends Controller{
 
     /**
      * Handles the search request and fetches YouTube videos based on the search key.
+     * It retrieves a list of videos, calculates their readability scores, and returns
+     * the results as JSON, including average readability statistics.
      *
-     * @param request The HTTP request containing the search form data.
-     * @return The result of the search, returning the view with the search results or an error page.
-     *
+     * @param searchKey The search query used to search for YouTube videos.
+     * @return A CompletableFuture containing the search results in JSON format.
      * @author aniket
-     * @description This method handles the search request by binding form data, performing the YouTube
-     *              search, and returning the appropriate results or error.
      */
+
     public CompletableFuture<Result> search(String searchKey) {
         if (searchKey == null || searchKey.trim().isEmpty()) {
             return CompletableFuture.completedFuture(badRequest("Search key cannot be empty"));
@@ -111,11 +117,9 @@ public class SearchController  extends Controller{
     /**
      * Searches YouTube for a channel's videos by channel name.
      *
-     * @param request The HTTP request containing the channel name.
-     * @return A page showing the videos of the given channel or an error if the channel is not found.
-     *
+     * @param channelName The name of the YouTube channel to search for.
+     * @return A CompletableFuture containing the channel's video results in JSON format.
      * @author sushmitha
-     * @description This method handles the request to search for YouTube videos based on a channel's name.
      */
     public CompletableFuture<Result> profile(String channelName){
         return CompletableFuture.supplyAsync(() -> {
@@ -144,11 +148,10 @@ public class SearchController  extends Controller{
     /**
      * Searches for videos related to a specific video ID or hashtag.
      *
-     * @param request The HTTP request containing either a videoId or a hashTag.
-     * @return A page displaying videos related to the provided video ID or hashtag.
-     *
+     * @param type The type of search: either "tags" for tags or "hashTag" for hashtags.
+     * @param id The ID of the video or hashtag to search for.
+     * @return A CompletableFuture containing the related video results in JSON format.
      * @author srinu.kesari
-     * @description This method searches for YouTube videos either by videoId or hashTag and renders the results.
      */
     public CompletableFuture<Result> tags(String type, String id){
         return CompletableFuture.supplyAsync(() -> {
@@ -187,13 +190,11 @@ public class SearchController  extends Controller{
     }
 
     /**
-     * Displays statistics related to the video content for the given search terms.
+     * Displays word statistics related to the video content for the given search terms.
      *
      * @param searchTerms The search terms used to retrieve the videos.
-     * @return A page displaying the word statistics for the search results.
-     *
-     * @author sahithi
-     * @description This method retrieves and displays word statistics for YouTube videos based on search terms.
+     * @return A page displaying the word statistics for the search results in JSON format.
+     * @author sahiti
      */
     public CompletableFuture<Result> displayStats(String searchTerms) {
         return CompletableFuture.supplyAsync(() -> {
@@ -222,10 +223,8 @@ public class SearchController  extends Controller{
      * Calculates the average Flesch-Kincaid grade level for a list of YouTube videos.
      *
      * @param videos A list of YouTubeVideo objects to calculate the average grade level.
-     * @return The average Flesch-Kincaid grade level.
-     *
-     * @author sahithi
-     * @description This method calculates the average Flesch-Kincaid grade level from a list of YouTube videos.
+     * @return A CompletableFuture containing the average Flesch-Kincaid grade level.
+     * @author sahiti
      */
     public CompletableFuture<Double> calculateAverageFleschKincaidGradeLevel(List<YouTubeVideo> videos) {
         return CompletableFuture.supplyAsync(() -> {
@@ -246,10 +245,8 @@ public class SearchController  extends Controller{
      * Calculates the average Flesch reading ease score for a list of YouTube videos.
      *
      * @param videos A list of YouTubeVideo objects to calculate the average reading ease score.
-     * @return The average Flesch reading ease score.
-     *
-     * @author sahithi
-     * @description This method calculates the average Flesch reading ease score from a list of YouTube videos.
+     * @return A CompletableFuture containing the average Flesch reading ease score.
+     * @author sahiti
      */
     public CompletableFuture<Double> calculateAverageFleschReadingEaseScore(List<YouTubeVideo> videos) {
         return CompletableFuture.supplyAsync(() -> {

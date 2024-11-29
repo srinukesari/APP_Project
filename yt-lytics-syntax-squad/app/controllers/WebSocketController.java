@@ -31,12 +31,29 @@ import javax.inject.Inject;
 import java.time.Duration;
 
 import controllers.*;
+/**
+ * WebSocketController handles WebSocket communication, managing connections, and
+ * relaying messages between the client and the main actor.
+ * <p>
+ * The controller provides an endpoint for establishing WebSocket connections, where messages
+ * are passed to a main actor, which processes them and returns responses. The WebSocket 
+ * connection is kept alive, and heartbeats are used to check the connection's health.
+ * @author Team
+ */
 
 public class WebSocketController extends Controller {
 
     private final ActorSystem actorSystem;
     private final Materializer materializer;
     private final YouTubeSearch youTubeSearch;
+    
+    /**
+     * Constructs the WebSocketController with the given dependencies.
+     *
+     * @param actorSystem The ActorSystem used to create and manage actors.
+     * @param materializer The Materializer used to handle Akka Streams.
+     * @param youTubeSearch The YouTubeSearch service used for searching YouTube.
+     */
 
     @Inject
     public WebSocketController(ActorSystem actorSystem,
@@ -47,6 +64,13 @@ public class WebSocketController extends Controller {
         this.youTubeSearch = youtTubeSearch;
     }
 
+    /**
+     * Creates and handles a WebSocket connection, setting up the main actor for handling
+     * the WebSocket messages.
+     *
+     * @return A WebSocket instance that accepts text messages and processes them.
+     */
+
     public WebSocket handleWebSocket() {
         String uniqueMainActor = "main-actor" + UUID.randomUUID().toString();
         ActorRef mainActor = actorSystem.actorOf(MainActor.props(materializer,youTubeSearch), uniqueMainActor);
@@ -54,6 +78,14 @@ public class WebSocketController extends Controller {
             return createWebSocketFlow(mainActor);
         });
     }
+    /**
+     * Creates a WebSocket flow that processes incoming messages and sends responses.
+     * The flow listens for "ping" messages to check the connection status and forwards
+     * other messages to the main actor for processing.
+     * 
+     * @param actorRef The actor responsible for processing incoming messages.
+     * @return A Flow that handles incoming WebSocket messages.
+     */
 
     private Flow<String, String, ?> createWebSocketFlow(ActorRef actorRef) {
         return Flow.<String>create()
@@ -72,6 +104,15 @@ public class WebSocketController extends Controller {
                                 });
                     });
     }
+    /**
+     * Handles the processing of a message received over the WebSocket.
+     * The message is forwarded to the main actor for processing, and the response is returned
+     * as a JSON object. If any error occurs, an error JSON response is returned.
+     *
+     * @param jsonNode The incoming message as a JSON node.
+     * @param mainActor The actor that processes the message.
+     * @return A CompletionStage of the JSON response from the actor.
+     */
 
     public CompletionStage<JsonNode> handleMessage(JsonNode jsonNode, ActorRef mainActor) {
         Timeout timeout = Timeout.create(Duration.ofSeconds(20));
