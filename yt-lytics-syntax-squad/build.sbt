@@ -24,10 +24,13 @@ libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.6.14" // For We
 libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.6.14" % Test // Optional, for testing Akka actors
 libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.8.8" % Test
 libraryDependencies += "com.typesafe.play" %% "play-test" % "2.8.8" % Test
+libraryDependencies += "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.2"
+libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2"
+libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2"
 
 enablePlugins(JacocoPlugin)
 
-jacocoIncludes := Seq("controllers.SearchController", "controllers.YouTubeSearch","models.*")
+jacocoIncludes := Seq("controllers.SearchController", "controllers.YouTubeSearch","models.*","actors.*")
 
 jacocoReportSettings := JacocoReportSettings()
   .withThresholds(

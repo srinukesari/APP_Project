@@ -17,8 +17,9 @@
             color: #333;
             margin-top: 20px;
         }
-
-        /* Form styling */
+        h2 {
+            text-align: center;
+        }
         form {
             display: flex;
             justify-content: center;
@@ -32,23 +33,27 @@
             margin-right: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" class="bi bi-search" viewBox="0 0 16 16"%3E%3Cpath d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"%3E%3C/path%3E%3C/svg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px 16px;
         }
 
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
+            background-color: #007BFF;
             color: white;
+            padding: 8px 30px;
             border: none;
-            border-radius: 5px;
+            border-radius: 20px;
+            font-size: 16px;
             cursor: pointer;
+            font-weight: bold;
+            width: 150px;
         }
 
         button:hover {
             background-color: #0056b3;
         }
-
-        
 
         table {
             border-collapse: collapse;
@@ -69,16 +74,19 @@
             border-bottom: 1px solid #ddd;
         }
         .video-item {
-        /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
         transition: box-shadow 0.3s ease;
         display: flex;
-        /* align-items: flex-start; */
         padding: 15px;
         border-radius:5px;
         margin-left:0px;
     }
 
-    .search-results .video-item + .video-item {
+
+    /* .search-item .video-item + .video-item {
+        margin-top: 0;
+        padding-top: 5px;
+    } */
+    .video-item + .video-item {
         margin-top: 0;
         padding-top: 5px;
     }
@@ -92,21 +100,14 @@
         flex: 2;
         padding: 30px 20px;
     }
-    .tag-list-tagpage{
-        margin:5px 50px;
-    }
+    
     .video-details strong {
         color: #333;
     }
 
     .video-details a {
-        /* color: #1a0dab; */
         text-decoration: none;
     }
-    /* 
-    .video-details a:hover {
-        text-decoration: underline;
-    } */
 
     .video-details .title-description {
         font-style: italic;
@@ -144,36 +145,72 @@
     }
     .video-item {
         display: flex;
-        justify-content: flex-start;  /* Ensure content starts from left */
-        align-items: flex-start;      /* Align items at the top of the container */
+        justify-content: flex-start;  
+        align-items: flex-start;      
         padding: 15px;
-        margin-left: 0;               /* Remove margin */
+        margin-left: 0;               
     }
     #output {
             margin: 0px;
             padding: 0px;
             
-        }
+    }
+    .video-item-tagpage{
+        display: flex;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+            transition: box-shadow 0.3s ease;
+        align-items: flex-start;
+        margin-bottom: 0;
+        padding: 50px 50px;
+    }
+    .video-thumbnail-tagpage a img{
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 500px;
+        border-radius: 10px;
+    }
+    .video-details-tagpage{
+        flex: 2;
+        padding: 30px 20px;
+    }
+    .search-term-title {
+    font-size: 20px; 
+}
+.wordstats-link {
+    font-weight: bold;
+    text-decoration: none;
+}
+.wordstats:hover {
+    text-decoration: underline;
+}
+.search-item{
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    color: #333;
+}
 
-        /* table {
-            width: 50%;
-            margin: 20px 0;
-            border-collapse: collapse;
-        }
+.search-item .search-terms {
+    color: #333;
+}
+.search-terms {
+    display: inline-block; 
+}
 
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        } */
+.search-term-title, .search-terms span, .wordstats-link {
+    display: inline; 
+    margin-right: 10px; 
+}
+.search-item {
+    margin: 0;
+    padding: 0;
+}
+#response {
+    margin: 0;
+    padding: 0;
+}
 
     </style>
 </head>
@@ -192,13 +229,15 @@
 <script>
     // Establish WebSocket connection
     const socket = new WebSocket("ws://localhost:9000/ws");
-    console.log("hii");
+    // console.log("hii");
     socket.onopen = () => {
         console.log("WebSocket connection established.");
         sessionStorage.setItem('sessionData', JSON.stringify([]));
     };
 
     socket.onmessage = (event) => {
+        // console.log(event.data);
+        if (event.data=="HeartBeat!!!") return ;
         const jsonData = JSON.parse(event?.data);
         // console.log(jsonData)
         if(jsonData?.error) {
@@ -335,29 +374,86 @@
         let searchResultsList = document.createElement("div");
         const ytVideoList = item?.youTubeVideosList || [];
         ytVideoList?.forEach((video,index) => {
-                const ytVideoDiv = document.createElement("div");
-                ytVideoDiv.className = "search-item-video";
+            const ytVideoDiv = document.createElement("div");
+            ytVideoDiv.className = "video-item-tagpage";
 
-                let description = video?.description?.length > 200 ? video.description.substring(0,200) + "..." : video.description;
+            // Video Thumbnail
+            const thumbnailDiv = document.createElement("div");
+            thumbnailDiv.className = "video-thumbnail-tagpage";
+            const thumbnailLink = document.createElement("a");
+            thumbnailLink.href = video.htmlLinkforTitle || "#";
+            thumbnailLink.target = "_blank";
+            const thumbnailImg = document.createElement("img");
+            thumbnailImg.src = video.thumbnailUrl;  // Add default image
+            thumbnailImg.alt = "Thumbnail";
+            thumbnailLink.appendChild(thumbnailImg);
+            thumbnailDiv.appendChild(thumbnailLink);
+            ytVideoDiv.appendChild(thumbnailDiv);
+            const videoDetailsDiv = document.createElement("div");
+            videoDetailsDiv.className = "video-details-tagpage";
 
-                let tagsWithLinks;
-                video?.tags.forEach((tag) =>{
-                    tagsWithLinks += `<a href="javascript:void(0);" data-hashtag-id="${tag}" class="hashtag-link">${tag}</a>, `;
-                })
+            // Title
+            const titleDiv = document.createElement("strong");
+            titleDiv.innerHTML = "Title: ";
+            const titleLink = document.createElement("a");
+            titleLink.href = video.htmlLinkforTitle || "#";
+            titleLink.target = "_blank";
+            titleLink.innerText = video.title || "No Title";
+            titleDiv.appendChild(titleLink);
+            videoDetailsDiv.appendChild(titleDiv);
 
-                ytVideoDiv.innerHTML = `
-                    ${index + 1}. Title: <a href="${video.htmlLinkforTitle}">${video.title}</a>,`
-                    +
-                    `Channel: <a href="javascript:void(0);" class="channel-link">${video.channel}</a>, `
-                    +
-                    `Description: ${description} `
-                    +
-                    tagsWithLinks
-                ;
-                
-                searchResultsList.appendChild(ytVideoDiv);
-        });
-        document.body.innerHTML = searchResultsList.innerHTML;
+            videoDetailsDiv.appendChild(document.createElement("br"));
+            videoDetailsDiv.appendChild(document.createElement("br"));
+
+            // Channel
+            const channelDiv = document.createElement("strong");
+            channelDiv.innerHTML = "Channel: ";
+            const channelLink = document.createElement("a");
+            // channelLink.href = video.htmlLinkforProfile || "#";
+            channelLink.href = "javascript:void(0);"; 
+            channelLink.innerText = video.channel || "No Channel";
+            channelLink.className="channel-link"
+            channelDiv.appendChild(channelLink);
+            videoDetailsDiv.appendChild(channelDiv);
+
+            videoDetailsDiv.appendChild(document.createElement("br"));
+            videoDetailsDiv.appendChild(document.createElement("br"));
+
+            // Description
+            const descriptionDiv = document.createElement("strong");
+            descriptionDiv.innerHTML = "Description: ";
+            descriptionDiv.innerHTML += video.description || "No Description";
+            videoDetailsDiv.appendChild(descriptionDiv);
+            videoDetailsDiv.appendChild(document.createElement("br"));
+            videoDetailsDiv.appendChild(document.createElement("br"));
+            const tagsHeader = document.createElement("strong");
+            tagsHeader.innerText = "#Tags:";
+
+            if (video.tags && video.tags.length > 0) {
+                video.tags.forEach((tag, idx) => {
+                    const tagSpan = document.createElement("span");
+
+                    // Create link for the tag with data-hashtag-id
+                    const tagLink = document.createElement("a");
+                    tagLink.href = "javascript:void(0);";
+                    tagLink.className = "hashtag-link";
+                    tagLink.dataset.hashtagId = tag; // Set the data-hashtag-id
+                    tagLink.innerText = tag;
+
+                    tagSpan.appendChild(tagLink);
+                    tagsHeader.appendChild(tagSpan);
+
+                    if (idx < video.tags.length - 1) {
+                        tagsHeader.appendChild(document.createTextNode(", "));
+                    }
+                });
+            }
+
+            videoDetailsDiv.appendChild(tagsHeader);
+            ytVideoDiv.appendChild(videoDetailsDiv);
+            searchResultsList.appendChild(ytVideoDiv);
+            });
+            document.body.innerHTML = searchResultsList.innerHTML;
     }
 
     function reRender(){
@@ -367,13 +463,17 @@
             let searchItem = document.createElement("div");
             searchItem.className = "search-item";
 
+            
             searchItem.innerHTML = `
                 <h3>SearchTerm: ${item?.searchTerms} | averageFleschReadingEaseScore: ${item?.averageFleschReadingEaseScore} | averageFleschKincaidGradeLevel: ${item?.averageFleschKincaidGradeLevel} | <a href="javascript:void(0);" class="wordstats-link">Morestats</a> </h3> 
             `;
+                            // <h3>SearchTerm: ${item?.searchTerms} | averageFleschReadingEaseScore: ${item?.averageFleschReadingEaseScore} | averageFleschKincaidGradeLevel: ${item?.averageFleschKincaidGradeLevel} | <a href="javascript:void(0);" class="wordstats-link">Morestats</a> </h3> 
+
 
             const ytVideoList = item?.youTubeVideosList || [];
             searchItem = ytVideoListDiv(searchItem, ytVideoList);
             searchResultsList.appendChild(searchItem)
+
         });
         document.getElementById("response").innerHTML = searchResultsList.innerHTML;
     }
@@ -382,8 +482,8 @@
         const wordStats = item || {};  
         let orderedWordStats = Object.entries(wordStats);
         orderedWordStats.sort((a, b) => b[1] - a[1]);
+        let heading = ` <h2>Word Stats</h2>`;
         let table = `
-            <h2>Word Stats</h2>
             <table>
                 <thead>
                     <tr>
@@ -411,7 +511,7 @@
         const frequencies = orderedWordStats.map(([_, frequency]) => frequency);
 
         // Render the table and chart into the body
-        document.body.innerHTML = `
+        document.body.innerHTML = heading + `
             <canvas id="wordStatsChart" width="400" height="200"></canvas>
         ` + table ;
         
