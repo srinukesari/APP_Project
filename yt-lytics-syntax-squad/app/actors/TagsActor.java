@@ -28,17 +28,18 @@ import controllers.YouTubeSearch;
 public class TagsActor extends AbstractActor {
     private final Materializer materializer;
     private final YouTubeSearch youTubeSearch;
+
     /**
      * Constructs the TagsActor with the given Materializer and YouTubeSearch instance.
      * 
      * @param materializer The Akka Materializer used for processing the response.
      * @param youTubeSearch The YouTubeSearch instance used to interact with YouTube.
      */
-
     public TagsActor(Materializer materializer, YouTubeSearch youTubeSearch) {
         this.materializer = materializer;
         this.youTubeSearch = youTubeSearch;
     }
+
     /**
      * Defines the behavior of the TagsActor. The actor listens for messages of type JsonNode.
      * Upon receiving a message, it extracts the ID and type, then calls the SearchController 
@@ -50,7 +51,6 @@ public class TagsActor extends AbstractActor {
      *
      * @return The receive behavior of the actor, which processes incoming JsonNode messages.
      */
-
     @Override
     public Receive createReceive() {
         return receiveBuilder()
@@ -62,12 +62,12 @@ public class TagsActor extends AbstractActor {
                     CompletableFuture<Result> results = searchController.tags(type,id);
                     Result result = results.join();
 
-                    CompletableFuture<JsonNode> jsonResponseFuture =
-                            ConvertData.convertHttpEntityToJsonNode(result,materializer);
+                    ConvertData convertData = new ConvertData();
 
-                    // Send the JSON response back to the sender
+                    CompletableFuture<JsonNode> jsonResponseFuture =
+                            convertData.convertHttpEntityToJsonNode(result,materializer);
+
                     jsonResponseFuture.thenAccept(jsonResponse -> {
-                        System.out.println("check the response------> "+ jsonResponse);
                         sender().tell(jsonResponse, self());
                     });
                 })

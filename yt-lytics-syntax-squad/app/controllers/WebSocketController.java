@@ -23,12 +23,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.UUID;
 
 import play.libs.F;
+import org.apache.pekko.actor.Cancellable;
 
 import scala.compat.java8.FutureConverters;
 import scala.concurrent.Future;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.List;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import controllers.*;
 /**
@@ -54,7 +59,6 @@ public class WebSocketController extends Controller {
      * @param materializer The Materializer used to handle Akka Streams.
      * @param youTubeSearch The YouTubeSearch service used for searching YouTube.
      */
-
     @Inject
     public WebSocketController(ActorSystem actorSystem,
                                Materializer materializer,
@@ -70,14 +74,27 @@ public class WebSocketController extends Controller {
      *
      * @return A WebSocket instance that accepts text messages and processes them.
      */
-
     public WebSocket handleWebSocket() {
         String uniqueMainActor = "main-actor" + UUID.randomUUID().toString();
+        System.out.println("main actor created here -----> "+uniqueMainActor);
         ActorRef mainActor = actorSystem.actorOf(MainActor.props(materializer,youTubeSearch), uniqueMainActor);
         return WebSocket.Text.accept(request -> {
             return createWebSocketFlow(mainActor);
         });
     }
+
+    /**
+     * creates a jsonNode object using key
+     *
+     * @return jsonNode object for msg
+     */
+    public static String getJsonString(String key){
+        ObjectNode objectNode = Json.newObject();
+        objectNode.put("path","search");
+        objectNode.put("key",key);
+        return Json.toJson(objectNode).toString();
+    }
+
     /**
      * Creates a WebSocket flow that processes incoming messages and sends responses.
      * The flow listens for "ping" messages to check the connection status and forwards
@@ -86,24 +103,35 @@ public class WebSocketController extends Controller {
      * @param actorRef The actor responsible for processing incoming messages.
      * @return A Flow that handles incoming WebSocket messages.
      */
-
     private Flow<String, String, ?> createWebSocketFlow(ActorRef actorRef) {
+        Map<String, Integer> searchKeys = new LinkedHashMap<>();
         return Flow.<String>create()
-                .keepAlive(Duration.ofSeconds(30), () -> "ping")
+                .keepAlive(Duration.ofSeconds(1), () -> {
+                    if(searchKeys.isEmpty()) return "ping";
+                    String key = searchKeys.entrySet().iterator().next().getKey();
+                    String jsonString = getJsonString(key);
+                    searchKeys.remove(key);
+                    searchKeys.put(key,1);
+                    System.out.println("come to ping checker++++++++++++++++++++++++"+searchKeys);
+                    return jsonString;
+                })
                 .mapAsync(1, message -> {
                         System.out.println("incomming msg -----> "+message);
-                        if ("ping".equals(message)) {
+                        if ("ping".equals(message) || "ping333".equals(message)) {
                             System.out.println("Received heartbeat");
                             return CompletableFuture.completedFuture("HeartBeat!!!");
                         }
-                        JsonNode jsonNode = Json.parse(message); // Parse incoming message
+                        JsonNode jsonNode = Json.parse(message);// Parse incoming message
+                        if(jsonNode.has("path")){
+                            searchKeys.put(jsonNode.get("key").asText(),1);
+                        }
                         return handleMessage(jsonNode,actorRef)
                                 .thenApply(response -> {
-                                    System.out.println("inside handle ----"+response.toString());
                                     return response.toString();
                                 });
                     });
     }
+
     /**
      * Handles the processing of a message received over the WebSocket.
      * The message is forwarded to the main actor for processing, and the response is returned
@@ -113,7 +141,6 @@ public class WebSocketController extends Controller {
      * @param mainActor The actor that processes the message.
      * @return A CompletionStage of the JSON response from the actor.
      */
-
     public CompletionStage<JsonNode> handleMessage(JsonNode jsonNode, ActorRef mainActor) {
         Timeout timeout = Timeout.create(Duration.ofSeconds(20));
 
@@ -123,20 +150,16 @@ public class WebSocketController extends Controller {
 
         return javaFuture.thenApply(response -> {
             if (response instanceof JsonNode) {
-                System.out.println("check ------> "+ response);
                 return (JsonNode) response; // Respond with JSON
             } else {
                 throw new RuntimeException("Unexpected response type");
-//                return badRequest("Unexpected response type");
             }
         }).exceptionally(ex -> {
             ex.printStackTrace();
-            // Return an error JSON object
             ObjectNode errorNode = Json.newObject();
             errorNode.put("error", "Error processing request");
             errorNode.put("details", ex.getMessage());
             return errorNode;
-//            return internalServerError("Error processing request");
         });
     }
 }

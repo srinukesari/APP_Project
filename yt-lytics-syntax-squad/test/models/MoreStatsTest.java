@@ -8,7 +8,15 @@ import org.mockito.Mock;
 import java.util.*;
 import static org.junit.Assert.*;
 
-/* @author: sahiti */
+/**
+ * Unit tests for the MoreStats class.
+ *
+ * This test class verifies the behavior of the `MoreStats` class, which analyzes word statistics
+ * for a list of YouTube video titles and descriptions. The tests ensure the correctness of word
+ * frequency calculations and handle edge cases such as an empty video list and single-word content.
+ *
+ * @author sahiti
+ */
 public class MoreStatsTest {
 
     @Mock
@@ -19,6 +27,12 @@ public class MoreStatsTest {
 
     private MoreStats moreStats;
 
+    /**
+     * Sets up the test environment before each test.
+     *
+     * Initializes mock YouTube videos and the `MoreStats` object. Mocks provide test data for
+     * video titles and descriptions to validate word frequency calculations.
+     */
     @Before
     public void setup() {
         mockvideo1 = Mockito.mock(YouTubeVideo.class);
@@ -33,6 +47,12 @@ public class MoreStatsTest {
         moreStats = new MoreStats("Java", youTubeVideosList);
     }
 
+    /**
+     * Tests the MoreStats#getWordStatistics() method for a list of videos with valid titles and descriptions.
+     *
+     * Verifies that the word statistics are calculated correctly by comparing the actual output
+     * with the expected word-frequency mapping.
+     */
     @Test
     public void testGetWordStatistics() {
         Map<String, Long> wordStatistics = moreStats.getWordStatistics();
@@ -52,6 +72,11 @@ public class MoreStatsTest {
         assertEquals(expectedStatistics, wordStatistics);
     }
 
+    /**
+     * Tests the MoreStats#getWordStatistics() method with an empty video list.
+     *
+     * Verifies that the word statistics map is empty when there are no videos to analyze.
+     */
     @Test
     public void testEmptyVideoList() {
         List<YouTubeVideo> emptyVideoList = new ArrayList<>();
@@ -60,6 +85,11 @@ public class MoreStatsTest {
         assertTrue(wordStatistics.isEmpty());
     }
 
+    /**
+     * Tests the MoreStats#getWordStatistics() method with a single video containing repetitive words.
+     *
+     * Verifies that the word statistics accurately capture word frequency, even for repetitive content.
+     */
     @Test
     public void testSingleWordVideoList() {
         List<YouTubeVideo> singleWordVideos = new ArrayList<>();

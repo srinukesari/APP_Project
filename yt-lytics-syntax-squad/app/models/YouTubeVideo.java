@@ -137,21 +137,21 @@ public class YouTubeVideo{
         return videoUrl;
     }
 
-    /**
-     * Generates an HTML link for the YouTube profile based on the channel name.
-     *
-     * @return The HTML link for the channel profile.
-     */
-    public String getHtmlLinkforProfile(){
-        try{
-            String encodedChannel = URLEncoder.encode(channel, StandardCharsets.UTF_8.toString());
-            String htmlLink = "/ytlytics/profile?channel="+encodedChannel;
-            return htmlLink;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return "/ytlytics/profile?channel=" + channel;
-        }
-    }
+//    /**
+//     * Generates an HTML link for the YouTube profile based on the channel name.
+//     *
+//     * @return The HTML link for the channel profile.
+//     */
+//    public String getHtmlLinkforProfile(){
+//        try{
+//            String encodedChannel = URLEncoder.encode(channel, StandardCharsets.UTF_8.toString());
+//            String htmlLink = "/ytlytics/profile?channel="+encodedChannel;
+//            return htmlLink;
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//            return "/ytlytics/profile?channel=" + channel;
+//        }
+//    }
 
     /**
      * Generates an HTML link for searching tags related to the YouTube video.
@@ -163,22 +163,22 @@ public class YouTubeVideo{
         return htmlLink;
     }
 
-    /**
-     * Generates an HTML link for searching a specific tag across YouTube videos.
-     *
-     * @param tag The tag to search for.
-     * @return The HTML link for searching the tag.
-     */
-    public String getHtmlLinkforTagSearch(String tag){
-        try {
-            String encodedTag = URLEncoder.encode(tag, StandardCharsets.UTF_8.toString());
-            String htmlLink = "/ytlytics/tags?hashTag=" + encodedTag;
-            return htmlLink;
-        }catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return "/ytlytics/tags?hashTag=" + tag;
-        }
-    }
+//    /**
+//     * Generates an HTML link for searching a specific tag across YouTube videos.
+//     *
+//     * @param tag The tag to search for.
+//     * @return The HTML link for searching the tag.
+//     */
+//    public String getHtmlLinkforTagSearch(String tag){
+//        try {
+//            String encodedTag = URLEncoder.encode(tag, StandardCharsets.UTF_8.toString());
+//            String htmlLink = "/ytlytics/tags?hashTag=" + encodedTag;
+//            return htmlLink;
+//        }catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//            return "/ytlytics/tags?hashTag=" + tag;
+//        }
+//    }
     /**
      * Calculates the readability scores (Flesch Reading Ease and Flesch-Kincaid Grade Level)
      * for the YouTube video's description.
@@ -194,18 +194,18 @@ public class YouTubeVideo{
         int totalWords = countWords(description);
         int totalSentences = countSentences(description);
         int totalSyllables = countSyllables(description);
-        if (totalSentences == 0) {
-            fleschReadingEaseScore = 0.0;
-            fleschKincaidGradeLevel = 0.0;
-            return;
-        }
+//        if (totalSentences == 0) {
+//            fleschReadingEaseScore = 0.0;
+//            fleschKincaidGradeLevel = 0.0;
+//            return;
+//        }
         fleschReadingEaseScore = (206.835 - (1.015 * ((double) totalWords / totalSentences))
                                     - (84.6 * ((double) totalSyllables / totalWords)));
         
         fleschReadingEaseScore = new BigDecimal(fleschReadingEaseScore).setScale(2, RoundingMode.HALF_UP).doubleValue();
-        if (fleschReadingEaseScore < 0) {
-            fleschReadingEaseScore = 0.0;
-        }
+//        if (fleschReadingEaseScore < 0) {
+//            fleschReadingEaseScore = 0.0;
+//        }
         fleschKincaidGradeLevel = ((0.39 * ((double) totalWords / totalSentences))
                                     + (11.8 * ((double) totalSyllables / totalWords)) - 15.59 );
         fleschKincaidGradeLevel = new BigDecimal(fleschKincaidGradeLevel).setScale(2, RoundingMode.HALF_UP).doubleValue();

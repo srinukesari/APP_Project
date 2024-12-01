@@ -1,9 +1,0 @@
-@(searchForm : Form[Search])(searchResultsList: List[SearchResults])(implicit messages: play.i18n.Messages)
-@import helper._
-
-@displayResults("YT Lytics")(searchResultsList){
-    <h2>Welcome to YT Lytics</h2>
-    <div class="search-container">
-        <button type="submit" value="Go!" class="search-button">Go!</button>
-    </div>
-}

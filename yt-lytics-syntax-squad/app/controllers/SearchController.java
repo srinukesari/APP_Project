@@ -57,26 +57,22 @@ public class SearchController  extends Controller{
      *
      * @param searchKey The search query used to search for YouTube videos.
      * @return A CompletableFuture containing the search results in JSON format.
-     * @author aniket
+     * @author aniket, srinu.kesari
      */
 
     public CompletableFuture<Result> search(String searchKey) {
         if (searchKey == null || searchKey.trim().isEmpty()) {
-            return CompletableFuture.completedFuture(badRequest("Search key cannot be empty"));
+            return CompletableFuture.completedFuture(badRequest(Json.toJson("Search key cannot be empty")));
         }
         return CompletableFuture.supplyAsync(() -> {
             try {
                 List<YouTubeVideo> YTVideosList = new ArrayList<>();
                 List<YouTubeVideo> MorestatsVideosList = new ArrayList<>();
                 try {
-                    System.out.println("check the inside func sri");
                     YTVideosList = youTubeSearch.Search(searchKey, "home");
-                    System.out.println("check the list here-------"+ YTVideosList);
                     List<String> videoIds = new ArrayList<>();
                     for (YouTubeVideo video : YTVideosList) {
                         videoIds.add(video.getVideoId());
-                        System.out.println("check the video Id-------"+ video.getVideoId());
-
                     }
                     YTVideosList = youTubeSearch.fetchFullDescriptions(videoIds);
                     MorestatsVideosList.addAll(YTVideosList);
@@ -84,7 +80,6 @@ public class SearchController  extends Controller{
                         YTVideosList = YTVideosList.subList(0, 10);
                     }
                 } catch (Exception e) {
-                    System.out.println("check exception==== " + e);
                     return badRequest(Json.toJson("Exception occured from YoutubeApi"));
                 }
                 CompletableFuture<Double> gradeLevelFuture = calculateAverageFleschKincaidGradeLevel(MorestatsVideosList);
@@ -97,13 +92,9 @@ public class SearchController  extends Controller{
                 SearchResults sr1 = new SearchResults(searchKey, MorestatsVideosList);
                 sr.setAverageFleschKincaidGradeLevel(averageFleschKincaidGradeLevel);
                 sr.setAverageFleschReadingEaseScore(averageFleschReadingEaseScore);
-                displayResults.add(0, sr);
                 morestatsResults.add(0, sr1);
 
-                System.out.println("Morestats" + morestatsResults);
-
                 JsonNode jsonNode = Json.toJson(sr);
-//                System.out.println("hello.  ----"+jsonNode.toString());
                 ObjectNode objectNode = (ObjectNode) jsonNode;
                 objectNode.put("path","search");
                 return ok(Json.toJson(objectNode));
@@ -133,10 +124,10 @@ public class SearchController  extends Controller{
                     YTVideosList = YTVideosList.subList(0, 10); 
                 }
             } catch (Exception e) {
-                return badRequest("Invalid API Key");
+                return badRequest(Json.toJson("Invalid API Key"));
             }
             JsonNode result = Json.toJson(YTVideosList);
-            ObjectNode jsonNode = Json.newObject();;
+            ObjectNode jsonNode = Json.newObject();
             jsonNode.put("path","profile");
             jsonNode.put("channel",channelName);
             jsonNode.put("youTubeVideosList",result);
@@ -156,7 +147,7 @@ public class SearchController  extends Controller{
     public CompletableFuture<Result> tags(String type, String id){
         return CompletableFuture.supplyAsync(() -> {
             if (type == null || id == null || id.isEmpty()) {
-                return badRequest("videoId/ hashTag not provided");
+                return badRequest(Json.toJson("videoId/ hashTag not provided"));
             }
             List<YouTubeVideo> YTVideosList = new ArrayList<>();
             System.out.println("inside tag call srinu---> "+ type+" ---- "+id+" "+type.equals("tags"));
@@ -184,7 +175,7 @@ public class SearchController  extends Controller{
                 jsonNode.put("path","tags");
                 return ok(jsonNode);
             } catch (Exception e) {
-                return badRequest("Invalid API Key");
+                return badRequest(Json.toJson("Invalid API Key"));
             }
         });
     }

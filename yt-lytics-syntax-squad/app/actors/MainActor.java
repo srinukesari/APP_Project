@@ -5,10 +5,14 @@ import org.apache.pekko.actor.ActorRef;
 import org.apache.pekko.actor.Props;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.pekko.stream.Materializer;
+import org.apache.pekko.actor.Cancellable;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 import controllers.*;
 
 import play.libs.Json;
+
 /**
  * The MainActor is the central actor that coordinates the handling of different types of requests 
  * by delegating the tasks to specific actors based on the request type.
@@ -19,7 +23,6 @@ import play.libs.Json;
  * and statistics. The MainActor also includes references to these child actors and manages their lifecycle.
  * @author team
  */
-
 public class MainActor extends AbstractActor {
     private final ActorRef searchActor;
     private final ActorRef profileActor;
@@ -35,7 +38,6 @@ public class MainActor extends AbstractActor {
      * @param materializer The Akka Materializer used for stream processing.
      * @param youTubeSearch The YouTubeSearch instance used by the child actors.
      */
-
     public MainActor(Materializer materializer, YouTubeSearch youTubeSearch) {
         this.materializer = materializer;
         this.youTubeSearch = youTubeSearch;
@@ -56,6 +58,7 @@ public class MainActor extends AbstractActor {
     public static Props props(Materializer materializer,YouTubeSearch youTubeSearch) {
         return Props.create(MainActor.class, materializer, youTubeSearch);
     }
+
     /**
      * Defines the behavior of the MainActor. The actor listens for incoming messages of type JsonNode.
      * Based on the value of the "path" field in the JSON message, the actor forwards the message 
@@ -73,13 +76,13 @@ public class MainActor extends AbstractActor {
      *
      * @return The Receive behavior of the MainActor.
      */
-
     @Override
     public Receive createReceive() {
         return receiveBuilder()
                 .match(JsonNode.class, json -> {
-                    System.out.println("check here srinu------>"+json);
-                    String requestType = json.get("path").asText();
+                    String requestType = "";
+                    JsonNode pathNode = json.get("path");
+                    if (pathNode != null && !pathNode.asText().isEmpty())  requestType = pathNode.asText();
                     switch (requestType) {
                         case "search":
                             searchActor.forward(json, getContext());

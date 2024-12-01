@@ -14,7 +14,7 @@ import java.util.concurrent.CompletionStage;
  * A utility class for converting HTTP response bodies to JSON objects.
  * This class contains methods to asynchronously convert an HTTP entity's body 
  * to a JsonNode using the Akka Streams materializer for data processing.
- * @author srinu.kesari
+ * @author team
  */
 public class ConvertData {
     /**
@@ -29,9 +29,9 @@ public class ConvertData {
      * 
      * @throws Exception if there is an error while reading the response body or parsing the JSON.
      */
-    public static CompletableFuture<JsonNode> convertHttpEntityToJsonNode
+    public CompletableFuture<JsonNode> convertHttpEntityToJsonNode
             (Result result, Materializer materializer) {
-        try {
+//        try {
             // Convert the HttpEntity's body to a byte array asynchronously
             ByteString byteString = result.body().consumeData(materializer).toCompletableFuture().join();
 
@@ -41,9 +41,9 @@ public class ConvertData {
             // Parse the String into a JsonNode
             JsonNode jsonNode = Json.parse(jsonString);
             return CompletableFuture.completedFuture(jsonNode);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return CompletableFuture.completedFuture(Json.newObject().put("error", "Failed to parse response"));
-        }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return CompletableFuture.completedFuture(Json.newObject().put("error", "Failed to parse response"));
+//        }
     }
 }

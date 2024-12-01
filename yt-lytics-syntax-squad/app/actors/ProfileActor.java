@@ -14,6 +14,7 @@ import java.util.concurrent.CompletionStage;
 
 import controllers.SearchController;
 import controllers.YouTubeSearch;
+
 /**
  * The ProfileActor is an Akka actor responsible for handling requests related to YouTube channel profiles.
  * It interacts with the SearchController to fetch profile data for a specific YouTube channel.
@@ -22,7 +23,6 @@ import controllers.YouTubeSearch;
  * and uses it to request the channel's profile data, forwarding the results back to the sender.
  * @author sushmitha
  */
-
 public class ProfileActor extends AbstractActor {
     private final Materializer materializer;
     private final YouTubeSearch youTubeSearch;
@@ -32,11 +32,11 @@ public class ProfileActor extends AbstractActor {
      * @param materializer The Akka Materializer used for processing the response.
      * @param youTubeSearch The YouTubeSearch instance used for interacting with YouTube.
      */
-
     public ProfileActor(Materializer materializer, YouTubeSearch youTubeSearch) {
         this.materializer = materializer;
         this.youTubeSearch = youTubeSearch;
     }
+
     /**
      * Defines the behavior of the ProfileActor. This actor listens for messages of type JsonNode.
      * Upon receiving a message, it extracts the channel name, queries the SearchController for
@@ -46,23 +46,21 @@ public class ProfileActor extends AbstractActor {
      *
      * @return The receive behavior of the actor, which processes incoming JsonNode messages.
      */
-
     @Override
     public Receive createReceive() {
         return receiveBuilder()
                 .match(JsonNode.class, json -> {
-                    // Extract the search key from the JSON message
                     String channelName = json.get("key").asText();
 
-                    // Call the SearchController logic (or replicate it here)
                     SearchController searchController = new SearchController(youTubeSearch);
                     CompletableFuture<Result> results = searchController.profile(channelName);
                     Result result = results.join();
 
-                    CompletableFuture<JsonNode> jsonResponseFuture =
-                            ConvertData.convertHttpEntityToJsonNode(result,materializer);
+                    ConvertData convertData = new ConvertData();
 
-                    // Send the JSON response back to the sender
+                    CompletableFuture<JsonNode> jsonResponseFuture =
+                            convertData.convertHttpEntityToJsonNode(result,materializer);
+
                     jsonResponseFuture.thenAccept(jsonResponse -> {
                         System.out.println("check the response------> "+ jsonResponse);
                         sender().tell(jsonResponse, self());

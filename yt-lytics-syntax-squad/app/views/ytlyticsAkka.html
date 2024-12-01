@@ -236,7 +236,7 @@
     };
 
     socket.onmessage = (event) => {
-        // console.log(event.data);
+        console.log(event.data);
         if (event.data=="HeartBeat!!!") return ;
         const jsonData = JSON.parse(event?.data);
         // console.log(jsonData)
@@ -268,6 +268,7 @@
 
     document.getElementById("sendButton").addEventListener("click", () => {
         const input = document.getElementById("inputMessage").value.trim();
+        document.getElementById('inputMessage').value = "";
         if (input) {
             sendSocketMessage("search", input);
 
@@ -346,8 +347,8 @@
                         
                         <strong>Channel: </strong>  <a href="javascript:void(0);" class="channel-link">${video.channel}</a> | 
                         <strong>Description: </strong> <span class "description">${description} </span> |
-                        Flesch Reading Ease: ${video.fleschReadingEaseScore} | 
-                        Flesch-Kincaid Grade Level: ${video.fleschKincaidGradeLevel}
+                        <strong>Flesch Reading Ease:</strong> ${video.fleschReadingEaseScore} | 
+                        <strong>Flesch-Kincaid Grade Level:<strong> ${video.fleschKincaidGradeLevel}
                     <a href="javascript:void(0);" data-video-id="${video.videoId}" class="tags-link">View Tags</a>
                     
                 </div>

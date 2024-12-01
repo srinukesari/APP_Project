@@ -81,7 +81,6 @@ public class YouTubeSearch {
         List<SearchResult> searchResultList = channelResponse.getItems();
 
         if (searchResultList.isEmpty()) {
-//            System.out.println("No channels found for: " + channelName);
             return null;
         }
 
@@ -193,12 +192,21 @@ public class YouTubeSearch {
             searchRequest = getSearchRequestforTags(youtubeService,search);
         }
 
+//        videosList.add(
+//                new YouTubeVideo(
+//                        "sample Id",
+//                        "sample Title",
+//                        "sample Channel",
+//                        "sample Description",
+//                        null,
+//                        null
+//                )
+//        );
         // execute the request and get the details of the video
         if(searchRequest == null && videoRequest == null) return videosList;
         else if(searchRequest != null) {
             SearchListResponse searchResponse = searchRequest.execute();
             searchResults = searchResponse.getItems();
-//            System.out.println("result is here "+searchResults.size());
         } else if (videoRequest != null) {
             VideoListResponse videoResponse = videoRequest.execute();
             videoDetails = videoResponse.getItems();
@@ -256,6 +264,16 @@ public class YouTubeSearch {
                 .list("snippet")
                 .setKey(API_KEY);
 
+//        videosList.add(
+//                new YouTubeVideo(
+//                        "sample Id",
+//                        "sample Title",
+//                        "sample Channel",
+//                        "sample Description",
+//                        null,
+//                        null
+//                )
+//        );
         for (int i = 0; i < videoIds.size(); i += 50) {
             List<String> batch = videoIds.subList(i, Math.min(i + 50, videoIds.size()));
             videoRequest.setId(String.join(",", batch));

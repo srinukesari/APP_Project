@@ -14,6 +14,7 @@ import java.util.concurrent.CompletionStage;
 
 import controllers.SearchController;
 import controllers.YouTubeSearch;
+
 /**
  * The MoreStatsActor is an Akka actor responsible for handling requests related to YouTube search statistics.
  * It interacts with the SearchController to perform search operations and retrieve statistics.
@@ -22,7 +23,6 @@ import controllers.YouTubeSearch;
  * to perform a search and fetch relevant statistics, forwarding the results back to the sender.
  * @author sahiti
  */
-
 public class MoreStatsActor extends AbstractActor {
     private final Materializer materializer;
     private final YouTubeSearch youTubeSearch;
@@ -37,6 +37,7 @@ public class MoreStatsActor extends AbstractActor {
         this.materializer = materializer;
         this.youTubeSearch = youTubeSearch;
     }
+
     /**
      * Defines the behavior of the MoreStatsActor. This actor listens for messages of type JsonNode.
      * Upon receiving a message, it extracts the search key, performs a search using the 
@@ -47,7 +48,6 @@ public class MoreStatsActor extends AbstractActor {
      *
      * @return The receive behavior of the actor, which processes incoming JsonNode messages.
      */
-
     @Override
     public Receive createReceive() {
         return receiveBuilder()
@@ -61,9 +61,11 @@ public class MoreStatsActor extends AbstractActor {
                     SearchController searchController = new SearchController(youTubeSearch);
                     CompletableFuture<Result> searchResultFuture = searchController.search(searchKey);
                     Result searchResult333 = searchResultFuture.join();
-                    
+
+                    ConvertData convertData = new ConvertData();
+
                     CompletableFuture<JsonNode> jsonResponseFuture333 =
-                            ConvertData.convertHttpEntityToJsonNode(searchResult333,materializer);
+                            convertData.convertHttpEntityToJsonNode(searchResult333,materializer);
                     
                     jsonResponseFuture333.thenAccept(result -> {
                         CompletableFuture<Result> results = searchController.displayStats(searchKey);
@@ -75,7 +77,7 @@ public class MoreStatsActor extends AbstractActor {
                             sender().tell(errorResponse, self());
                         }else{
                         CompletableFuture<JsonNode> jsonResponseFuture =
-                                ConvertData.convertHttpEntityToJsonNode(result1,materializer);
+                                convertData.convertHttpEntityToJsonNode(result1,materializer);
                         jsonResponseFuture.thenAccept(jsonResponse -> {
                             System.out.println("check the response in the else condition ------> "+ jsonResponse);
                             sender().tell(jsonResponse, self());
