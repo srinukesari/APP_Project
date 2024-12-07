@@ -80,6 +80,7 @@ public class SearchController  extends Controller{
                         YTVideosList = YTVideosList.subList(0, 10);
                     }
                 } catch (Exception e) {
+                    System.out.println("Exception here -----> "+e);
                     return badRequest(Json.toJson("Exception occured from YoutubeApi"));
                 }
                 CompletableFuture<Double> gradeLevelFuture = calculateAverageFleschKincaidGradeLevel(MorestatsVideosList);

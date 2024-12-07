@@ -203,9 +203,9 @@ public class YouTubeVideo{
                                     - (84.6 * ((double) totalSyllables / totalWords)));
         
         fleschReadingEaseScore = new BigDecimal(fleschReadingEaseScore).setScale(2, RoundingMode.HALF_UP).doubleValue();
-//        if (fleschReadingEaseScore < 0) {
-//            fleschReadingEaseScore = 0.0;
-//        }
+        if (fleschReadingEaseScore < 0) {
+            fleschReadingEaseScore = 0.0;
+        }
         fleschKincaidGradeLevel = ((0.39 * ((double) totalWords / totalSentences))
                                     + (11.8 * ((double) totalSyllables / totalWords)) - 15.59 );
         fleschKincaidGradeLevel = new BigDecimal(fleschKincaidGradeLevel).setScale(2, RoundingMode.HALF_UP).doubleValue();

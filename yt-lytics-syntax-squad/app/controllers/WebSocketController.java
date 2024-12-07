@@ -106,7 +106,7 @@ public class WebSocketController extends Controller {
     private Flow<String, String, ?> createWebSocketFlow(ActorRef actorRef) {
         Map<String, Integer> searchKeys = new LinkedHashMap<>();
         return Flow.<String>create()
-                .keepAlive(Duration.ofSeconds(1), () -> {
+                .keepAlive(Duration.ofSeconds(20), () -> {
                     if(searchKeys.isEmpty()) return "ping";
                     String key = searchKeys.entrySet().iterator().next().getKey();
                     String jsonString = getJsonString(key);

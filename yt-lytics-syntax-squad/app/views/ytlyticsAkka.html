@@ -12,6 +12,13 @@
             background-color: #f4f4f9;
         }
 
+        #mainDiv{
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
         h1 {
             text-align: center;
             color: #333;
@@ -215,20 +222,21 @@
     </style>
 </head>
 <body>
-<h1>YT Lytics</h1>
+<a href="javascript:void(0);" id="home"><h1>YT Lytics</h1></a>
+<div id="mainDiv">
 <form id="socketForm">
     <input type="text" id="inputMessage" placeholder="Type your Search here" required />
     <button type="button" id="sendButton">Go</button>
 </form>
-<div id="output">
-    <!-- <h2>Server Response:</h2> -->
-    <pre id="response"></pre>
+<div id="response"></div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js" id="script-to-reload"></script>
 
 <script>
-    // Establish WebSocket connection
     const socket = new WebSocket("ws://localhost:9000/ws");
+    mySocketConn();
+    function mySocketConn(){
+    // Establish WebSocket connection
     // console.log("hii");
     socket.onopen = () => {
         console.log("WebSocket connection established.");
@@ -236,7 +244,7 @@
     };
 
     socket.onmessage = (event) => {
-        console.log(event.data);
+        // console.log(event.data);
         if (event.data=="HeartBeat!!!") return ;
         const jsonData = JSON.parse(event?.data);
         // console.log(jsonData)
@@ -265,6 +273,43 @@
     socket.onclose = () => {
         console.log("WebSocket connection closed.");
     };
+}
+
+    document.getElementById("home").addEventListener("click", () => {
+        console.log("come here------->");
+        document.getElementById("mainDiv").innerHTML = `<form id="socketForm">
+            <input type="text" id="inputMessage" placeholder="Type your Search here" required />
+            <button type="button" id="sendButton">Go</button>
+        </form>
+        <div id="response">
+        </div>`;
+        
+
+        mySocketConn();
+
+        document.getElementById("sendButton").addEventListener("click", () => {
+        const input = document.getElementById("inputMessage").value.trim();
+        document.getElementById('inputMessage').value = "";
+            if (input) {
+                sendSocketMessage("search", input);
+
+                let sessionData = JSON.parse(sessionStorage.getItem('sessionData')) || [];
+                if(sessionData.length != 0 && sessionData[0].searchTerms == input){
+                    return;
+                }
+                
+                let jsonData = {
+                    "searchTerms":input
+                }
+                sessionData.unshift(jsonData);
+                sessionStorage.setItem('sessionData',JSON.stringify(sessionData));
+            } else {
+                alert("Please enter a message.");
+            }
+        });
+
+        reRender();
+    });
 
     document.getElementById("sendButton").addEventListener("click", () => {
         const input = document.getElementById("inputMessage").value.trim();
@@ -273,6 +318,10 @@
             sendSocketMessage("search", input);
 
             let sessionData = JSON.parse(sessionStorage.getItem('sessionData')) || [];
+            if(sessionData.length != 0 && sessionData[0].searchTerms == input){
+                return;
+            }
+            
             let jsonData = {
                 "searchTerms":input
             }
@@ -295,7 +344,6 @@
         }
 
         sessionStorage.setItem('sessionData',JSON.stringify(sessionData));
-
         reRender();
     }
 
@@ -308,7 +356,7 @@
         socket.send(JSON.stringify(message));
     }
 
-    document.body.addEventListener('click', function(event) {
+    document.getElementById("mainDiv").addEventListener('click', function(event) {
         if (event.target && event.target.classList.contains('channel-link')) {
             const channel = event.target.textContent;
             console.log('Channel clicked: ', channel);
@@ -368,7 +416,7 @@
         let searchResultsList = document.createElement("div");
         const ytVideoList = item?.youTubeVideosList || [];
         searchResultsList = ytVideoListDiv(searchResultsList, ytVideoList);
-        document.body.innerHTML = searchResultsList.innerHTML;
+        document.getElementById("mainDiv").innerHTML = searchResultsList.innerHTML;
     }
 
     function renderTagPage(item){
@@ -454,11 +502,12 @@
             ytVideoDiv.appendChild(videoDetailsDiv);
             searchResultsList.appendChild(ytVideoDiv);
             });
-            document.body.innerHTML = searchResultsList.innerHTML;
+            document.getElementById("mainDiv").innerHTML = searchResultsList.innerHTML;
     }
 
     function reRender(){
         let sessionData = JSON.parse(sessionStorage.getItem('sessionData')) || [];
+        console.log("check data----->",sessionData);
         const searchResultsList = document.createElement("div");
         sessionData?.forEach(item => {
             let searchItem = document.createElement("div");
@@ -512,7 +561,7 @@
         const frequencies = orderedWordStats.map(([_, frequency]) => frequency);
 
         // Render the table and chart into the body
-        document.body.innerHTML = heading + `
+        document.getElementById("mainDiv").innerHTML = heading + `
             <canvas id="wordStatsChart" width="400" height="200"></canvas>
         ` + table ;
         

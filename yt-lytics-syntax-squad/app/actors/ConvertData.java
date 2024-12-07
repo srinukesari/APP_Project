@@ -31,7 +31,7 @@ public class ConvertData {
      */
     public CompletableFuture<JsonNode> convertHttpEntityToJsonNode
             (Result result, Materializer materializer) {
-//        try {
+        try {
             // Convert the HttpEntity's body to a byte array asynchronously
             ByteString byteString = result.body().consumeData(materializer).toCompletableFuture().join();
 
@@ -41,9 +41,9 @@ public class ConvertData {
             // Parse the String into a JsonNode
             JsonNode jsonNode = Json.parse(jsonString);
             return CompletableFuture.completedFuture(jsonNode);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return CompletableFuture.completedFuture(Json.newObject().put("error", "Failed to parse response"));
-//        }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CompletableFuture.completedFuture(Json.newObject().put("error", "Failed to parse response"));
+        }
     }
 }
